@@ -1,0 +1,77 @@
+/* Custom CSS for FinanPy */
+
+/* Additional styles that complement TailwindCSS */
+
+.btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+.btn-secondary {
+    @apply bg-secondary-600 hover:bg-secondary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+}
+
+.card {
+    @apply bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700 hover:border-primary-500 transition-all duration-300;
+}
+
+.form-input {
+    @apply bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+}
+
+/* Custom animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Financial charts styles */
+.chart-container {
+    @apply bg-dark-800/80 rounded-xl p-4 border border-dark-700;
+}
+
+/* Transaction status indicators */
+.status-income {
+    @apply text-success-400 bg-success-900/20 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-expense {
+    @apply text-danger-400 bg-danger-900/20 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.status-pending {
+    @apply text-warning-400 bg-warning-900/20 px-2 py-1 rounded-full text-xs font-medium;
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-dark-800;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-dark-600 rounded-full hover:bg-dark-500;
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        @apply bg-white text-black;
+    }
+}
