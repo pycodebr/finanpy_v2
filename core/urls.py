@@ -32,6 +32,12 @@ urlpatterns = [
     
     # Profile management URLs
     path('profile/', include('profiles.urls')),
+    
+    # Accounts management URLs
+    path('accounts/', include('accounts.urls')),
+    
+    # Categories management URLs
+    path('categories/', include('categories.urls')),
 ]
 
 # Serve static and media files during development

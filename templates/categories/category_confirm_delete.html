@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Excluir {{ object.name }} - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .danger-card {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(185, 28, 28, 0.1) 100%);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    
+    .warning-card {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(180, 83, 9, 0.1) 100%);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    
+    .info-card {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    
+    .category-preview {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+    
+    .dependency-item {
+        transition: all 0.2s ease;
+    }
+    
+    .dependency-item:hover {
+        background-color: rgba(55, 65, 81, 0.3);
+    }
+    
+    .color-preview {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center text-gray-400 text-sm mb-4">
+                <a href="{% url 'categories:category-list' %}" class="hover:text-white transition-colors">Categorias</a>
+                <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+                <span class="text-white">Excluir Categoria</span>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <span class="text-2xl mr-2">🗑️</span>
+                Confirmar Exclusão
+            </h1>
+            <p class="text-gray-300">
+                Confirme a exclusão da categoria abaixo
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Category Information -->
+                <div class="category-preview rounded-xl p-6">
+                    <h2 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <span class="text-xl mr-2">📋</span>
+                        Categoria a ser excluída
+                    </h2>
+                    
+                    <div class="bg-dark-700/60 rounded-lg p-4 border border-dark-600">
+                        <div class="flex items-center space-x-4">
+                            <!-- Color Preview -->
+                            <div class="color-preview" style="background-color: {{ object.color }};"></div>
+                            
+                            <!-- Icon -->
+                            <span class="text-2xl">{{ object.icon }}</span>
+                            
+                            <!-- Category Info -->
+                            <div class="flex-1">
+                                <h3 class="text-xl font-semibold text-white">{{ object.name }}</h3>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    {% if object.category_type == 'INCOME' %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-900/20 text-green-400 border border-green-800">
+                                            <span class="w-2 h-2 bg-green-400 rounded-full mr-1.5"></span>
+                                            Receita
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-900/20 text-red-400 border border-red-800">
+                                            <span class="w-2 h-2 bg-red-400 rounded-full mr-1.5"></span>
+                                            Despesa
+                                        </span>
+                                    {% endif %}
+                                    
+                                    {% if object.is_active %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/20 text-blue-400 border border-blue-800">
+                                            <span class="w-2 h-2 bg-blue-400 rounded-full mr-1.5"></span>
+                                            Ativa
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-900/20 text-gray-400 border border-gray-700">
+                                            <span class="w-2 h-2 bg-gray-400 rounded-full mr-1.5"></span>
+                                            Inativa
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if object.parent %}
+                                    <div class="mt-3 text-sm text-gray-400">
+                                        <span class="font-medium">Categoria pai:</span> {{ object.parent.name }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        <span class="font-medium">Caminho completo:</span> {{ object.full_path }}
+                                    </div>
+                                {% else %}
+                                    <div class="mt-3 text-sm text-gray-400">
+                                        <span class="font-medium">Tipo:</span> Categoria raiz
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dependency Warnings -->
+                {% if not can_delete %}
+                    <!-- Children Warning -->
+                    {% if has_children %}
+                    <div class="danger-card rounded-xl p-6">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-red-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-red-300 mb-2">
+                                    Não é possível excluir esta categoria
+                                </h3>
+                                <p class="text-red-200 mb-4">
+                                    Esta categoria possui subcategorias que dependem dela. Você precisa excluir ou reatribuir as subcategorias primeiro.
+                                </p>
+                                
+                                <div class="space-y-2">
+                                    <h4 class="font-medium text-red-300">Subcategorias encontradas:</h4>
+                                    {% for child in children %}
+                                        <div class="dependency-item bg-red-900/20 rounded-lg p-3 border border-red-800/50">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-4 h-4 rounded" style="background-color: {{ child.color }};"></div>
+                                                <span class="text-lg">{{ child.icon }}</span>
+                                                <div>
+                                                    <div class="text-red-200 font-medium">{{ child.name }}</div>
+                                                    {% if child.is_active %}
+                                                        <div class="text-xs text-red-300">Ativa</div>
+                                                    {% else %}
+                                                        <div class="text-xs text-red-400">Inativa</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="mt-4 flex space-x-3">
+                                    <a href="{% url 'categories:category-list' %}" 
+                                       class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 0h8"></path>
+                                        </svg>
+                                        Gerenciar Subcategorias
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Transaction Warning -->
+                    {% if transaction_count > 0 %}
+                    <div class="warning-card rounded-xl p-6">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-yellow-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-yellow-300 mb-2">
+                                    Categoria com transações associadas
+                                </h3>
+                                <p class="text-yellow-200 mb-4">
+                                    Esta categoria possui <strong>{{ transaction_count }}</strong> transação{% if transaction_count != 1 %}ões{% endif %} associada{% if transaction_count != 1 %}s{% endif %}. 
+                                    Ao excluir, a categoria será <strong>desativada</strong> ao invés de removida permanentemente, 
+                                    preservando o histórico das transações.
+                                </p>
+                                
+                                <div class="bg-yellow-900/30 border border-yellow-700 rounded-lg p-3">
+                                    <div class="flex items-start">
+                                        <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                        </svg>
+                                        <div class="text-yellow-200 text-sm">
+                                            <p class="font-medium">O que acontecerá:</p>
+                                            <ul class="mt-1 list-disc list-inside space-y-1 text-xs">
+                                                <li>A categoria será marcada como "Inativa"</li>
+                                                <li>As transações existentes permanecerão inalteradas</li>
+                                                <li>A categoria não aparecerá em novas transações</li>
+                                                <li>Você pode reativar a categoria a qualquer momento</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Safe to Delete -->
+                    <div class="info-card rounded-xl p-6">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-blue-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-blue-300 mb-2">
+                                    Categoria pode ser excluída com segurança
+                                </h3>
+                                <p class="text-blue-200">
+                                    Esta categoria não possui subcategorias nem transações associadas. 
+                                    Ela será removida permanentemente do sistema.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Confirmation Form -->
+                {% if can_delete or transaction_count > 0 %}
+                <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl border border-dark-700 p-6">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button type="submit" 
+                                    class="flex-1 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {% if transaction_count > 0 %}
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18 21l-4.95-4.95m0 0L5.636 5.636M13.05 16.05L18 21"></path>
+                                    {% else %}
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    {% endif %}
+                                </svg>
+                                {% if transaction_count > 0 %}
+                                    Desativar Categoria
+                                {% else %}
+                                    Excluir Permanentemente
+                                {% endif %}
+                            </button>
+                            
+                            <a href="{% url 'categories:category-list' %}" 
+                               class="flex-1 btn-secondary px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                {% else %}
+                <div class="flex justify-center">
+                    <a href="{% url 'categories:category-list' %}" 
+                       class="btn-secondary px-8 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        Voltar para Categorias
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl border border-dark-700 p-6 sticky top-8">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <span class="text-xl mr-2">ℹ️</span>
+                        Informações Importantes
+                    </h3>
+                    
+                    <div class="space-y-4 text-sm text-gray-300">
+                        <div class="bg-dark-700/60 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-yellow-200 mb-1">Atenção</p>
+                                    <p class="text-yellow-100">Esta ação não pode ser desfeita se a categoria não tiver dependências.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-dark-700/60 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-blue-200 mb-1">Alternativa</p>
+                                    <p class="text-blue-100">Considere desativar a categoria ao invés de excluir, assim ela permanece no histórico.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if object.children.exists %}
+                        <div class="bg-dark-700/60 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-green-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-green-200 mb-1">Dica</p>
+                                    <p class="text-green-100">Para excluir uma categoria com subcategorias, primeiro reorganize ou exclua as subcategorias.</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="border-t border-dark-600 pt-4">
+                            <h4 class="font-medium text-gray-200 mb-2">Ações alternativas:</h4>
+                            <div class="space-y-2">
+                                <a href="{% url 'categories:category-update' object.pk %}" 
+                                   class="block w-full text-center py-2 px-3 bg-yellow-900/20 text-yellow-300 rounded-lg hover:bg-yellow-900/30 transition-colors">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Editar Categoria
+                                </a>
+                                
+                                <a href="{% url 'categories:category-detail' object.pk %}" 
+                                   class="block w-full text-center py-2 px-3 bg-blue-900/20 text-blue-300 rounded-lg hover:bg-blue-900/30 transition-colors">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                    Ver Detalhes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

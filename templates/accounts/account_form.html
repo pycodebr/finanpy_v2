@@ -1,0 +1,445 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .account-preview {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+    
+    .form-field-error {
+        border-color: #EF4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    .error-message {
+        color: #FCA5A5;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .help-text {
+        color: #9CA3AF;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    /* Balance input specific styling */
+    .balance-input-container .currency-symbol {
+        min-width: 24px;
+        display: inline-flex;
+        justify-content: center;
+    }
+    
+    .balance-input-container input[type="number"] {
+        padding-left: 3rem !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center text-gray-400 text-sm mb-4">
+                <a href="{% url 'accounts:account-list' %}" class="hover:text-white transition-colors">Contas</a>
+                <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+                <span class="text-white">{{ page_title }}</span>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <span class="text-2xl mr-2">{% if form.instance.pk %}✏️{% else %}➕{% endif %}</span>
+                {{ page_title }}
+            </h1>
+            <p class="text-gray-300">
+                {% if form.instance.pk %}
+                    Modifique as informações da conta abaixo
+                {% else %}
+                    Preencha os dados para criar uma nova conta
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Form Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl border border-dark-700 p-6">
+                    <form method="post" id="account-form" novalidate>
+            {% csrf_token %}
+            
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+                <div class="mb-6 p-4 bg-danger-900/20 border border-danger-800 rounded-lg">
+                    <div class="flex items-center mb-2">
+                        <svg class="w-5 h-5 text-danger-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3 class="text-sm font-medium text-danger-400">Please correct the following errors:</h3>
+                    </div>
+                    <ul class="list-disc list-inside text-sm text-danger-300 space-y-1">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <div class="space-y-6">
+                <!-- Account Name -->
+                <div>
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                        Nome da Conta
+                        <span class="text-danger-400">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.name.help_text }}</p>
+                    {% endif %}
+                    {% if form.name.errors %}
+                        <div class="mt-1 text-sm text-danger-400">
+                            {% for error in form.name.errors %}
+                                <p class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Account Type -->
+                <div>
+                    <label for="{{ form.account_type.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                        Tipo de Conta
+                        <span class="text-danger-400">*</span>
+                    </label>
+                    {{ form.account_type }}
+                    {% if form.account_type.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.account_type.help_text }}</p>
+                    {% endif %}
+                    {% if form.account_type.errors %}
+                        <div class="mt-1 text-sm text-danger-400">
+                            {% for error in form.account_type.errors %}
+                                <p class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Currency -->
+                <div>
+                    <label for="{{ form.currency.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                        Moeda
+                        <span class="text-danger-400">*</span>
+                    </label>
+                    {{ form.currency }}
+                    {% if form.currency.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.currency.help_text }}</p>
+                    {% endif %}
+                    {% if form.currency.errors %}
+                        <div class="mt-1 text-sm text-danger-400">
+                            {% for error in form.currency.errors %}
+                                <p class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Initial Balance -->
+                <div>
+                    <label for="{{ form.balance.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                        {% if form.instance.pk %}Saldo Atual{% else %}Saldo Inicial{% endif %}
+                        <span class="text-danger-400">*</span>
+                    </label>
+                    <div class="relative balance-input-container">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                            <span class="text-gray-400 text-sm font-medium currency-symbol" id="currency-symbol">$</span>
+                        </div>
+                        <input type="number" 
+                               name="{{ form.balance.name }}" 
+                               id="{{ form.balance.id_for_label }}"
+                               value="{{ form.balance.value|default_if_none:'' }}"
+                               class="form-input"
+                               step="0.01"
+                               min="-999999999.99"
+                               max="999999999.99"
+                               placeholder="0.00">
+                    </div>
+                    {% if form.balance.help_text %}
+                        <p class="mt-1 text-sm text-gray-500">{{ form.balance.help_text }}</p>
+                    {% endif %}
+                    {% if form.balance.errors %}
+                        <div class="mt-1 text-sm text-danger-400">
+                            {% for error in form.balance.errors %}
+                                <p class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Account Type Information -->
+                <div id="account-type-info" class="p-4 bg-dark-700/50 rounded-lg border border-dark-600">
+                    <div class="flex items-center mb-2">
+                        <svg class="w-5 h-5 text-primary-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h4 class="text-sm font-medium text-primary-400">Informações do Tipo de Conta</h4>
+                    </div>
+                    <div id="account-type-description" class="text-sm text-gray-400">
+                        Selecione um tipo de conta para ver mais informações.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-between pt-6 mt-8 border-t border-dark-600">
+                <a href="{% url 'accounts:account-list' %}" 
+                   class="text-gray-400 hover:text-white font-medium transition-colors duration-200">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="btn-primary">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    {{ submit_text }}
+                </button>
+            </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="lg:col-span-1">
+                <div class="account-preview rounded-xl p-6 sticky top-8">
+                    <h3 class="text-lg font-semibold text-white mb-4">
+                        <span class="text-xl mr-2">👁️</span>
+                        Pré-visualização
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Account Preview Card -->
+                        <div class="bg-dark-700/60 rounded-lg p-4 border border-dark-600">
+                            <div class="flex items-center space-x-3">
+                                <div id="preview-icon" class="w-10 h-10 rounded-full bg-gradient-financial flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div id="preview-name" class="text-white font-medium">
+                                        {{ form.name.value|default:'Nome da Conta' }}
+                                    </div>
+                                    <div id="preview-type" class="text-xs text-gray-400">
+                                        {% if form.account_type.value %}{{ form.account_type.value|title }}{% else %}Tipo de Conta{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 pt-3 border-t border-dark-600">
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm text-gray-400">
+                                        <span id="preview-currency">{% if form.currency.value %}{{ form.currency.value }}{% else %}Moeda{% endif %}</span>
+                                    </div>
+                                    <div id="preview-balance" class="text-lg font-semibold text-success-400">
+                                        <span id="preview-currency-symbol">$</span>{{ form.balance.value|default:'0.00' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Help Information -->
+                        <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-blue-100 text-sm">
+                                    <p class="font-medium mb-2">Dicas:</p>
+                                    <ul class="space-y-1 text-xs">
+                                        <li>• Use nomes descritivos como "Bradesco Conta Corrente"</li>
+                                        <li>• Inclua o nome do banco para facilitar identificação</li>
+                                        <li>• Para cartões de crédito, digite o valor da dívida</li>
+                                        <li>• Você pode atualizar o saldo a qualquer momento</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currencySelect = document.getElementById('{{ form.currency.id_for_label }}');
+    const accountTypeSelect = document.getElementById('{{ form.account_type.id_for_label }}');
+    const currencySymbol = document.getElementById('currency-symbol');
+    const accountTypeInfo = document.getElementById('account-type-description');
+    
+    // Currency symbol mapping
+    const currencySymbols = {
+        'USD': '$',
+        'EUR': '€',
+        'BRL': 'R$',
+        'GBP': '£',
+        'CAD': 'C$'
+    };
+    
+    // Account type descriptions
+    const accountTypeDescriptions = {
+        'checking': 'Conta para gastos diários com fácil acesso aos fundos. Geralmente oferece cartão de débito e talão de cheques.',
+        'savings': 'Conta que rende juros para guardar dinheiro. Normalmente tem transações limitadas, mas rende mais que conta corrente.',
+        'credit_card': 'Conta de crédito rotativo. Digite seu saldo atual como valor devido (número positivo para dívidas).',
+        'investment': 'Conta para investimentos como ações, títulos ou fundos mútuos. Saldo representa valor atual de mercado.',
+        'cash': 'Dinheiro físico ou equivalentes que você mantém em mãos. Útil para controlar dinheiro miúdo ou fundos de emergência.'
+    };
+    
+    // Update currency symbol when currency changes
+    function updateCurrencySymbol() {
+        const selectedCurrency = currencySelect.value;
+        currencySymbol.textContent = currencySymbols[selectedCurrency] || selectedCurrency;
+    }
+    
+    // Preview elements
+    const previewName = document.getElementById('preview-name');
+    const previewType = document.getElementById('preview-type');
+    const previewCurrency = document.getElementById('preview-currency');
+    const previewBalance = document.getElementById('preview-balance');
+    const previewCurrencySymbol = document.getElementById('preview-currency-symbol');
+    
+    // Update account type information
+    function updateAccountTypeInfo() {
+        const selectedType = accountTypeSelect.value;
+        if (selectedType && accountTypeDescriptions[selectedType]) {
+            accountTypeInfo.textContent = accountTypeDescriptions[selectedType];
+        } else {
+            accountTypeInfo.textContent = 'Selecione um tipo de conta para ver mais informações.';
+        }
+    }
+    
+    // Update live preview
+    function updatePreview() {
+        // Update name
+        if (document.getElementById('{{ form.name.id_for_label }}') && previewName) {
+            const nameValue = document.getElementById('{{ form.name.id_for_label }}').value;
+            previewName.textContent = nameValue || 'Nome da Conta';
+        }
+        
+        // Update type
+        if (accountTypeSelect && previewType) {
+            const typeText = accountTypeSelect.options[accountTypeSelect.selectedIndex].text;
+            previewType.textContent = typeText || 'Tipo de Conta';
+        }
+        
+        // Update currency
+        if (currencySelect && previewCurrency) {
+            const currencyText = currencySelect.options[currencySelect.selectedIndex].text;
+            previewCurrency.textContent = currencyText || 'Moeda';
+        }
+        
+        // Update balance
+        if (document.getElementById('{{ form.balance.id_for_label }}') && previewBalance) {
+            const balanceValue = document.getElementById('{{ form.balance.id_for_label }}').value;
+            const currencySymbolText = currencySymbol.textContent;
+            const balanceClass = parseFloat(balanceValue) >= 0 ? 'text-success-400' : 'text-danger-400';
+            previewBalance.innerHTML = `<span id="preview-currency-symbol">${currencySymbolText}</span>${balanceValue || '0.00'}`;
+            previewBalance.className = `text-lg font-semibold ${balanceClass}`;
+        }
+    }
+    
+    // Initialize with current values
+    updateCurrencySymbol();
+    updateAccountTypeInfo();
+    updatePreview();
+    
+    // Add event listeners
+    currencySelect.addEventListener('change', function() {
+        updateCurrencySymbol();
+        updatePreview();
+    });
+    accountTypeSelect.addEventListener('change', function() {
+        updateAccountTypeInfo();
+        updatePreview();
+    });
+    
+    // Add event listeners for live preview
+    if (document.getElementById('{{ form.name.id_for_label }}')) {
+        document.getElementById('{{ form.name.id_for_label }}').addEventListener('input', updatePreview);
+    }
+    if (document.getElementById('{{ form.balance.id_for_label }}')) {
+        document.getElementById('{{ form.balance.id_for_label }}').addEventListener('input', updatePreview);
+    }
+    
+    // Form validation
+    document.getElementById('account-form').addEventListener('submit', function(e) {
+        let hasErrors = false;
+        
+        // Clear previous error states
+        document.querySelectorAll('.form-field-error').forEach(el => {
+            el.classList.remove('form-field-error');
+        });
+        
+        // Validate required fields
+        const requiredFields = [
+            document.getElementById('{{ form.name.id_for_label }}'),
+            document.getElementById('{{ form.account_type.id_for_label }}'),
+            document.getElementById('{{ form.currency.id_for_label }}'),
+            document.getElementById('{{ form.balance.id_for_label }}')
+        ];
+        
+        requiredFields.forEach(field => {
+            if (field && (!field.value || field.value.trim() === '')) {
+                field.classList.add('form-field-error');
+                hasErrors = true;
+            }
+        });
+        
+        if (hasErrors) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = document.querySelector('.form-field-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        } else {
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processando...';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

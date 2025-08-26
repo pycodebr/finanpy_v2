@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Delete {{ account.name }} - FinanPy{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center space-x-3 mb-4">
+            <a href="{% url 'accounts:account-detail' account.pk %}" 
+               class="text-gray-400 hover:text-white transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </a>
+            <h1 class="text-3xl font-bold text-white">Delete Account</h1>
+        </div>
+        <p class="text-gray-400">This action will remove the account from your financial management system</p>
+    </div>
+
+    <!-- Warning Card -->
+    <div class="card border-danger-800 bg-danger-900/10">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 bg-danger-600 rounded-full flex items-center justify-center mr-4">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.268 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-xl font-semibold text-white">
+                    {% if deletion_type == 'permanent' %}
+                        Excluir Conta Permanentemente
+                    {% else %}
+                        Desativar Conta
+                    {% endif %}
+                </h2>
+                <p class="text-gray-400">{{ account.name }} ({{ account.get_account_type_display }})</p>
+            </div>
+        </div>
+
+        <!-- Account Summary -->
+        <div class="bg-dark-700/50 rounded-lg p-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <span class="text-sm text-gray-400">Saldo Atual</span>
+                    <div class="text-lg font-semibold {% if account.balance >= 0 %}text-success-400{% else %}text-danger-400{% endif %}">
+                        {{ account.balance_display }}
+                    </div>
+                </div>
+                <div>
+                    <span class="text-sm text-gray-400">Conta Criada</span>
+                    <div class="text-lg font-semibold text-white">
+                        {{ account.created_at|date_format_br }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deletion Information -->
+        {% if deletion_type == 'permanent' %}
+        <div class="space-y-4 mb-6">
+            <h3 class="text-lg font-semibold text-white">O que acontece quando você exclui esta conta?</h3>
+            <div class="space-y-3 text-sm text-gray-300">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-danger-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <span>A conta e suas informações serão <strong class="text-white">excluídas permanentemente</strong></span>
+                </div>
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-danger-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <span>Você <strong class="text-white">perderá acesso</strong> a todos os dados da conta</span>
+                </div>
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-danger-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    <span>Esta ação <strong class="text-white">não pode ser desfeita</strong></span>
+                </div>
+            </div>
+            
+            <div class="bg-danger-900/20 border border-danger-800 rounded-lg p-3 mt-4">
+                <p class="text-sm text-danger-300">
+                    <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Como esta conta não possui transações, ela pode ser excluída com segurança sem afetar seu histórico financeiro.
+                </p>
+            </div>
+        </div>
+        {% else %}
+        <div class="space-y-4 mb-6">
+            <h3 class="text-lg font-semibold text-white">O que acontece quando você desativa esta conta?</h3>
+            <div class="space-y-3 text-sm text-gray-300">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-warning-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>A conta será <strong class="text-white">desativada</strong> mas não excluída</span>
+                </div>
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-success-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Todo histórico de transações será <strong class="text-white">preservado</strong> para relatórios</span>
+                </div>
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-success-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <span>Você pode <strong class="text-white">reativar</strong> a conta depois se necessário</span>
+                </div>
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-warning-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>A conta não aparecerá nas <strong class="text-white">listas de contas ativas</strong></span>
+                </div>
+            </div>
+            
+            <div class="bg-warning-900/20 border border-warning-800 rounded-lg p-3 mt-4">
+                <p class="text-sm text-warning-300">
+                    <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Esta conta possui transações associadas, então será desativada em vez de excluída para preservar seu histórico financeiro.
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Confirmation -->
+        <div class="border-t border-danger-800 pt-6">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" 
+                               id="confirm-deletion" 
+                               class="form-checkbox h-4 w-4 text-danger-600 bg-dark-700 border-danger-600 rounded focus:ring-danger-500 focus:ring-2" 
+                               required>
+                        <span class="ml-2 text-sm text-gray-300">
+                            Entendo as consequências e quero
+                            {% if deletion_type == 'permanent' %}
+                                excluir permanentemente
+                            {% else %}
+                                desativar
+                            {% endif %}
+                            esta conta
+                        </span>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <a href="{% url 'accounts:account-detail' account.pk %}" 
+                       class="text-gray-400 hover:text-white font-medium transition-colors duration-200">
+                        Cancelar
+                    </a>
+                    <button type="submit" 
+                            id="delete-button"
+                            class="bg-danger-600 hover:bg-danger-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled>
+                        {% if deletion_type == 'permanent' %}
+                            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Excluir Conta
+                        {% else %}
+                            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18 12M6 12l12 0"></path>
+                            </svg>
+                            Desativar Conta
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alternative Actions -->
+    <div class="card mt-6">
+        <h3 class="text-lg font-semibold text-white mb-4">Ações Alternativas</h3>
+        <div class="space-y-3">
+            {% if account.is_active %}
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="font-medium text-white">Editar Detalhes da Conta</div>
+                    <div class="text-sm text-gray-400">Atualizar informações da conta sem excluir</div>
+                </div>
+                <a href="{% url 'accounts:account-update' account.pk %}" 
+                   class="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-200">
+                    Editar
+                </a>
+            </div>
+            {% endif %}
+            
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="font-medium text-white">Ver Detalhes da Conta</div>
+                    <div class="text-sm text-gray-400">Retornar à visão geral da conta</div>
+                </div>
+                <a href="{% url 'accounts:account-detail' account.pk %}" 
+                   class="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-200">
+                    Ver
+                </a>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="font-medium text-white">Todas as Contas</div>
+                    <div class="text-sm text-gray-400">Retornar à lista de contas</div>
+                </div>
+                <a href="{% url 'accounts:account-list' %}" 
+                   class="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-200">
+                    Ver Todas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.getElementById('confirm-deletion');
+    const deleteButton = document.getElementById('delete-button');
+    
+    // Enable/disable delete button based on checkbox
+    confirmCheckbox.addEventListener('change', function() {
+        deleteButton.disabled = !this.checked;
+    });
+    
+    // Handle form submission
+    const form = document.querySelector('form[method="post"]');
+    form.addEventListener('submit', function(e) {
+        if (!confirmCheckbox.checked) {
+            e.preventDefault();
+            return;
+        }
+        
+        // Disable button and show loading state
+        deleteButton.disabled = true;
+        {% if deletion_type == 'permanent' %}
+            deleteButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Excluindo...';
+        {% else %}
+            deleteButton.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Desativando...';
+        {% endif %}
+    });
+    
+    // Add escape key handler
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            window.location.href = '{% url 'accounts:account-detail' account.pk %}';
+        }
+    });
+});
+</script>
+{% endblock %}

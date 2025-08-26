@@ -11,9 +11,6 @@
     <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}">
-    
     <!-- Custom Tailwind Configuration -->
     <script>
         tailwind.config = {
@@ -137,6 +134,9 @@
         }
     </script>
     
+    <!-- Custom CSS - loaded after Tailwind configuration -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}">
+    
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -187,10 +187,11 @@
                     <div class="ml-10 flex items-baseline space-x-4">
                         {% if user.is_authenticated %}
                             <a href="{% url 'users:dashboard' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Dashboard</a>
+                            <a href="{% url 'accounts:account-list' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Contas</a>
+                            <a href="{% url 'categories:category-list' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Categorias</a>
                             <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Transações</a>
                             <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Orçamentos</a>
                             <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Metas</a>
-                            <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Relatórios</a>
                         {% else %}
                             <a href="{% url 'home' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Início</a>
                             <a href="#recursos" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Recursos</a>
@@ -270,10 +271,11 @@
             <div class="px-4 py-4 space-y-2">
                 {% if user.is_authenticated %}
                     <a href="{% url 'users:dashboard' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Dashboard</a>
+                    <a href="{% url 'accounts:account-list' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Contas</a>
+                    <a href="{% url 'categories:category-list' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Categorias</a>
                     <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Transações</a>
                     <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Orçamentos</a>
                     <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Metas</a>
-                    <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Relatórios</a>
                     <hr class="border-dark-600 my-4">
                     <a href="{% url 'users:profile' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Meu Perfil</a>
                     <form method="post" action="{% url 'users:logout' %}" class="block">

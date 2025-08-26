@@ -420,37 +420,37 @@ erDiagram
   - [X] Signal post_save do User para criar Profile
   - [X] Testes de criação automática
 
-### Sprint 2: Contas e Categorias (2 semanas)
+### Sprint 2: Contas e Categorias (2 semanas) ✅
 
-#### Tarefa 2.1: App Accounts (Contas Financeiras)
-- [ ] **2.1.1** Criar modelo Account
-  - [ ] ForeignKey para User
-  - [ ] Campos: name, account_type, balance, currency, is_active
-  - [ ] Choices para tipos de conta (checking, savings, credit_card, etc.)
-- [ ] **2.1.2** Implementar CRUD de contas
-  - [ ] AccountListView para listagem
-  - [ ] AccountCreateView para cadastro
-  - [ ] AccountUpdateView para edição
-  - [ ] AccountDeleteView (soft delete)
-- [ ] **2.1.3** Templates para gestão de contas
-  - [ ] Lista de contas com cards responsivos
-  - [ ] Formulário de cadastro/edição
-  - [ ] Modal de confirmação para exclusão
+#### Tarefa 2.1: App Accounts (Contas Financeiras) ✅
+- [X] **2.1.1** Criar modelo Account
+  - [X] ForeignKey para User
+  - [X] Campos: name, account_type, balance, currency, is_active
+  - [X] Choices para tipos de conta (checking, savings, credit_card, etc.)
+- [X] **2.1.2** Implementar CRUD de contas
+  - [X] AccountListView para listagem
+  - [X] AccountCreateView para cadastro
+  - [X] AccountUpdateView para edição
+  - [X] AccountDeleteView (soft delete)
+- [X] **2.1.3** Templates para gestão de contas
+  - [X] Lista de contas com cards responsivos
+  - [X] Formulário de cadastro/edição
+  - [X] Modal de confirmação para exclusão
 
-#### Tarefa 2.2: App Categories
-- [ ] **2.2.1** Criar modelo Category
-  - [ ] ForeignKey para User
-  - [ ] Campos: name, category_type, color, icon, parent_id
-  - [ ] Self-referencing FK para hierarquia
-- [ ] **2.2.2** Seed de categorias padrão
-  - [ ] Management command para criar categorias iniciais
-  - [ ] Categorias de receita e despesa pré-definidas
-  - [ ] Cores e ícones padrão
-- [ ] **2.2.3** CRUD de categorias
-  - [ ] CategoryListView hierárquica
-  - [ ] CategoryCreateView com seleção de pai
-  - [ ] CategoryUpdateView preservando hierarquia
-  - [ ] Validação para evitar loops na hierarquia
+#### Tarefa 2.2: App Categories ✅
+- [X] **2.2.1** Criar modelo Category
+  - [X] ForeignKey para User
+  - [X] Campos: name, category_type, color, icon, parent_id
+  - [X] Self-referencing FK para hierarquia
+- [X] **2.2.2** Seed de categorias padrão
+  - [X] Management command para criar categorias iniciais
+  - [X] Categorias de receita e despesa pré-definidas
+  - [X] Cores e ícones padrão
+- [X] **2.2.3** CRUD de categorias
+  - [X] CategoryListView hierárquica
+  - [X] CategoryCreateView com seleção de pai
+  - [X] CategoryUpdateView preservando hierarquia
+  - [X] Validação para evitar loops na hierarquia
 
 ### Sprint 3: Transações (3 semanas)
 

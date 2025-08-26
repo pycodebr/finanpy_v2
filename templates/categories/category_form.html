@@ -1,0 +1,505 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .color-preview {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.2s ease;
+    }
+    
+    .icon-preview {
+        font-size: 24px;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    
+    .form-preview {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+    
+    .hierarchy-indicator {
+        color: #6B7280;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+    
+    .parent-option {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+    }
+    
+    .parent-option.level-0 { padding-left: 0.5rem; }
+    .parent-option.level-1 { padding-left: 2rem; }
+    .parent-option.level-2 { padding-left: 3.5rem; }
+    .parent-option.level-3 { padding-left: 5rem; }
+    
+    .form-field-error {
+        border-color: #EF4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    .error-message {
+        color: #FCA5A5;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .help-text {
+        color: #9CA3AF;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center text-gray-400 text-sm mb-4">
+                <a href="{% url 'categories:category-list' %}" class="hover:text-white transition-colors">Categorias</a>
+                <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+                <span class="text-white">{{ page_title }}</span>
+            </div>
+            
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <span class="text-2xl mr-2">{% if form.instance.pk %}✏️{% else %}➕{% endif %}</span>
+                {{ form_title }}
+            </h1>
+            <p class="text-gray-300">
+                {% if form.instance.pk %}
+                    Modifique os dados da categoria abaixo
+                {% else %}
+                    Preencha os dados para criar uma nova categoria
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Form Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl border border-dark-700 p-6">
+                    <form method="post" id="category-form" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Name Field -->
+                        <div class="mb-6">
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                {{ form.name.label }}
+                                <span class="text-red-400">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.help_text %}
+                                <p class="help-text">{{ form.name.help_text }}</p>
+                            {% endif %}
+                            {% if form.name.errors %}
+                                {% for error in form.name.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Category Type Field -->
+                        <div class="mb-6">
+                            <label for="{{ form.category_type.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                {{ form.category_type.label }}
+                                <span class="text-red-400">*</span>
+                            </label>
+                            {{ form.category_type }}
+                            {% if form.category_type.help_text %}
+                                <p class="help-text">{{ form.category_type.help_text }}</p>
+                            {% endif %}
+                            {% if form.category_type.errors %}
+                                {% for error in form.category_type.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Parent Field -->
+                        <div class="mb-6">
+                            <label for="{{ form.parent.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                {{ form.parent.label }}
+                            </label>
+                            {{ form.parent }}
+                            {% if form.parent.help_text %}
+                                <p class="help-text">{{ form.parent.help_text }}</p>
+                            {% endif %}
+                            {% if form.parent.errors %}
+                                {% for error in form.parent.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {% if descendants %}
+                                <div class="mt-2 p-3 bg-yellow-900/20 border border-yellow-800 rounded-lg">
+                                    <div class="flex items-start">
+                                        <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        </svg>
+                                        <div class="text-yellow-100 text-sm">
+                                            <p class="font-medium mb-1">Atenção: Esta categoria possui subcategorias</p>
+                                            <p>Subcategorias: {{ descendants|join:", " }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Color and Icon Row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <!-- Color Field -->
+                            <div>
+                                <label for="{{ form.color.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ form.color.label }}
+                                    <span class="text-red-400">*</span>
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    {{ form.color }}
+                                    <div id="color-preview" class="color-preview" style="background-color: {{ form.color.value|default:'#6B7280' }};"></div>
+                                </div>
+                                {% if form.color.help_text %}
+                                    <p class="help-text">{{ form.color.help_text }}</p>
+                                {% endif %}
+                                {% if form.color.errors %}
+                                    {% for error in form.color.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Icon Field -->
+                            <div>
+                                <label for="{{ form.icon.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ form.icon.label }}
+                                    <span class="text-red-400">*</span>
+                                </label>
+                                <div class="flex items-center space-x-3">
+                                    {{ form.icon }}
+                                    <span id="icon-preview" class="icon-preview">{{ form.icon.value|default:'💰' }}</span>
+                                </div>
+                                {% if form.icon.help_text %}
+                                    <p class="help-text">{{ form.icon.help_text }}</p>
+                                {% endif %}
+                                {% if form.icon.errors %}
+                                    {% for error in form.icon.errors %}
+                                        <p class="error-message">{{ error }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Active Status Field -->
+                        <div class="mb-6">
+                            <div class="flex items-start">
+                                {{ form.is_active }}
+                                <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-300">
+                                    {{ form.is_active.label }}
+                                </label>
+                            </div>
+                            {% if form.is_active.help_text %}
+                                <p class="help-text ml-6">{{ form.is_active.help_text }}</p>
+                            {% endif %}
+                            {% if form.is_active.errors %}
+                                {% for error in form.is_active.errors %}
+                                    <p class="error-message ml-6">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-dark-700">
+                            <button type="submit" class="btn-primary flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {% if form.instance.pk %}
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    {% else %}
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    {% endif %}
+                                </svg>
+                                {{ submit_text }}
+                            </button>
+                            
+                            <a href="{{ cancel_url }}" class="btn-secondary flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="lg:col-span-1">
+                <div class="form-preview rounded-xl p-6 sticky top-8">
+                    <h3 class="text-lg font-semibold text-white mb-4">
+                        <span class="text-xl mr-2">👁️</span>
+                        Pré-visualização
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Category Preview Card -->
+                        <div class="bg-dark-700/60 rounded-lg p-4 border border-dark-600">
+                            <div class="flex items-center space-x-3">
+                                <div id="preview-color" class="color-preview w-6 h-6" style="background-color: {{ form.color.value|default:'#6B7280' }};"></div>
+                                <span id="preview-icon" class="text-xl">{{ form.icon.value|default:'💰' }}</span>
+                                <div>
+                                    <div id="preview-name" class="text-white font-medium">
+                                        {{ form.name.value|default:'Nome da Categoria' }}
+                                    </div>
+                                    <div id="preview-type" class="text-xs text-gray-400">
+                                        {% if form.category_type.value == 'INCOME' %}Receita
+                                        {% elif form.category_type.value == 'EXPENSE' %}Despesa
+                                        {% else %}Tipo de Categoria{% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 pt-3 border-t border-dark-600">
+                                <div id="preview-hierarchy" class="text-sm text-gray-400">
+                                    <span class="hierarchy-indicator">📍</span>
+                                    <span id="preview-path">
+                                        {% if form.instance.parent %}
+                                            {{ form.instance.parent.name }} > {{ form.name.value|default:'Nova Categoria' }}
+                                        {% else %}
+                                            Categoria Raiz
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-2">
+                                    <div id="preview-status" class="text-xs">
+                                        {% if form.is_active.value %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/20 text-blue-400 border border-blue-800">
+                                                <span class="w-1.5 h-1.5 bg-blue-400 rounded-full mr-1"></span>
+                                                Ativa
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-900/20 text-gray-400 border border-gray-700">
+                                                <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1"></span>
+                                                Inativa
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Help Information -->
+                        <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div class="text-blue-100 text-sm">
+                                    <p class="font-medium mb-2">Dicas:</p>
+                                    <ul class="space-y-1 text-xs">
+                                        <li>• Use cores diferentes para facilitar a identificação</li>
+                                        <li>• Categorias pai organizam subcategorias relacionadas</li>
+                                        <li>• Ícones ajudam na visualização rápida</li>
+                                        <li>• Desative categorias não utilizadas ao invés de excluir</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Parent categories data from backend
+const parentCategories = {{ parent_categories|safe }};
+
+// Form elements
+const nameField = document.getElementById('{{ form.name.id_for_label }}');
+const typeField = document.getElementById('{{ form.category_type.id_for_label }}');
+const parentField = document.getElementById('{{ form.parent.id_for_label }}');
+const colorField = document.getElementById('{{ form.color.id_for_label }}');
+const iconField = document.getElementById('{{ form.icon.id_for_label }}');
+const activeField = document.getElementById('{{ form.is_active.id_for_label }}');
+
+// Preview elements
+const previewName = document.getElementById('preview-name');
+const previewType = document.getElementById('preview-type');
+const previewColor = document.getElementById('preview-color');
+const previewIcon = document.getElementById('preview-icon');
+const previewPath = document.getElementById('preview-path');
+const previewStatus = document.getElementById('preview-status');
+const colorPreview = document.getElementById('color-preview');
+const iconPreview = document.getElementById('icon-preview');
+
+// Update color preview
+function updateColorPreview(color) {
+    if (colorPreview) {
+        colorPreview.style.backgroundColor = color;
+    }
+    if (previewColor) {
+        previewColor.style.backgroundColor = color;
+    }
+}
+
+// Update icon preview
+function updateIconPreview(icon) {
+    if (iconPreview) {
+        iconPreview.textContent = icon;
+    }
+    if (previewIcon) {
+        previewIcon.textContent = icon;
+    }
+}
+
+// Update parent options based on category type
+function updateParentOptions(categoryType) {
+    const parentOptions = parentCategories[categoryType] || [];
+    
+    // Clear current options except empty option
+    while (parentField.children.length > 1) {
+        parentField.removeChild(parentField.lastChild);
+    }
+    
+    // Add options for the selected type
+    parentOptions.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.id;
+        option.textContent = category.full_path;
+        option.dataset.level = category.level;
+        
+        // Add indentation for hierarchy visualization
+        const indent = '  '.repeat(category.level);
+        option.textContent = indent + category.name;
+        
+        parentField.appendChild(option);
+    });
+    
+    updatePreview();
+}
+
+// Update live preview
+function updatePreview() {
+    // Update name
+    if (nameField && previewName) {
+        previewName.textContent = nameField.value || 'Nome da Categoria';
+    }
+    
+    // Update type
+    if (typeField && previewType) {
+        const typeText = typeField.options[typeField.selectedIndex].text;
+        previewType.textContent = typeText || 'Tipo de Categoria';
+    }
+    
+    // Update color
+    if (colorField) {
+        updateColorPreview(colorField.value);
+    }
+    
+    // Update icon
+    if (iconField) {
+        updateIconPreview(iconField.value);
+    }
+    
+    // Update hierarchy path
+    if (parentField && previewPath) {
+        const selectedParent = parentField.options[parentField.selectedIndex];
+        const currentName = nameField ? nameField.value : 'Nova Categoria';
+        
+        if (selectedParent && selectedParent.value) {
+            previewPath.textContent = selectedParent.textContent.trim() + ' > ' + currentName;
+        } else {
+            previewPath.textContent = 'Categoria Raiz';
+        }
+    }
+    
+    // Update status
+    if (activeField && previewStatus) {
+        if (activeField.checked) {
+            previewStatus.innerHTML = `
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/20 text-blue-400 border border-blue-800">
+                    <span class="w-1.5 h-1.5 bg-blue-400 rounded-full mr-1"></span>
+                    Ativa
+                </span>
+            `;
+        } else {
+            previewStatus.innerHTML = `
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-900/20 text-gray-400 border border-gray-700">
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1"></span>
+                    Inativa
+                </span>
+            `;
+        }
+    }
+}
+
+// Add event listeners
+if (nameField) nameField.addEventListener('input', updatePreview);
+if (typeField) typeField.addEventListener('change', function() {
+    updateParentOptions(this.value);
+    updatePreview();
+});
+if (parentField) parentField.addEventListener('change', updatePreview);
+if (colorField) colorField.addEventListener('change', function() {
+    updateColorPreview(this.value);
+    updatePreview();
+});
+if (iconField) iconField.addEventListener('change', function() {
+    updateIconPreview(this.value);
+    updatePreview();
+});
+if (activeField) activeField.addEventListener('change', updatePreview);
+
+// Initialize preview on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial parent options if editing
+    {% if form.instance.pk %}
+        updateParentOptions('{{ form.instance.category_type }}');
+    {% endif %}
+    
+    updatePreview();
+});
+
+// Form validation
+document.getElementById('category-form').addEventListener('submit', function(e) {
+    let hasErrors = false;
+    
+    // Clear previous error states
+    document.querySelectorAll('.form-field-error').forEach(el => {
+        el.classList.remove('form-field-error');
+    });
+    
+    // Validate required fields
+    const requiredFields = [nameField, typeField, colorField, iconField];
+    
+    requiredFields.forEach(field => {
+        if (field && (!field.value || field.value.trim() === '')) {
+            field.classList.add('form-field-error');
+            hasErrors = true;
+        }
+    });
+    
+    if (hasErrors) {
+        e.preventDefault();
+        // Scroll to first error
+        const firstError = document.querySelector('.form-field-error');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstError.focus();
+        }
+    }
+});
+</script>
+{% endblock %}

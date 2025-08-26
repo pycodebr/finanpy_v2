@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}{{ account.name }} - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .account-card {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .account-icon {
+        transition: all 0.3s ease;
+    }
+    
+    .account-icon:hover {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center text-gray-400 text-sm mb-4">
+                <a href="{% url 'accounts:account-list' %}" class="hover:text-white transition-colors">Contas</a>
+                <svg class="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+                <span class="text-white">{{ account.name }}</span>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">
+                        <span class="text-2xl mr-2 account-icon">
+                    {% if account.account_type == 'checking' %}
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    {% elif account.account_type == 'savings' %}
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    {% elif account.account_type == 'credit_card' %}
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    {% elif account.account_type == 'investment' %}
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    {% else %}
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    {% endif %}
+                        </span>
+                        {{ account.name }}
+                    </h1>
+                    <p class="text-gray-300">
+                        {{ account.get_account_type_display }} • {{ account.get_currency_display }}
+                    </p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="{% url 'accounts:account-update' account.pk %}" 
+                       class="btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Editar Conta
+                    </a>
+                    
+                    <a href="{% url 'accounts:account-delete' account.pk %}" 
+                       class="bg-red-600 hover:bg-red-700 text-white inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Excluir
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Main Information -->
+            <div class="lg:col-span-2">
+                <div class="account-card rounded-xl p-6 mb-6">
+                    <h2 class="text-lg font-semibold text-white mb-6 flex items-center">
+                        <span class="text-xl mr-2">📋</span>
+                        Informações da Conta
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Balance Information -->
+                        <div class="bg-dark-700/60 rounded-lg p-4">
+                            <h3 class="font-medium text-gray-300 mb-3">Saldo Atual</h3>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold mb-2 {% if account.balance >= 0 %}text-success-400{% else %}text-danger-400{% endif %}">
+                                    {{ account.balance_display }}
+                                </div>
+                                <p class="text-sm text-gray-400">
+                                    {% if is_debt_account %}
+                                        Valor Devido
+                                    {% else %}
+                                        Saldo Disponível
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Account Properties -->
+                        <div class="bg-dark-700/60 rounded-lg p-4">
+                            <h3 class="font-medium text-gray-300 mb-3">Propriedades</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Tipo:</span>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/20 text-blue-400 border border-blue-800">
+                                        {{ account.get_account_type_display }}
+                                    </span>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Status:</span>
+                                    {% if account.is_active %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900/20 text-blue-400 border border-blue-800">
+                                            Ativa
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-900/20 text-gray-400 border border-gray-700">
+                                            Inativa
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Moeda:</span>
+                                    <span class="text-white">{{ account.get_currency_display }}</span>
+                                </div>
+                                
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Criada em:</span>
+                                    <span class="text-white">{{ account.created_at|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <!-- Recent Transactions (Placeholder) -->
+                <div class="account-card rounded-xl p-6">
+                    <h2 class="text-lg font-semibold text-white mb-6 flex items-center">
+                        <span class="text-xl mr-2">💳</span>
+                        Transações Recentes
+                    </h2>
+                    
+                    <!-- Placeholder for when Transaction model is implemented -->
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-dark-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-4xl text-gray-500">💳</span>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-300 mb-2">Nenhuma transação encontrada</h3>
+                        <p class="text-gray-500 mb-6">Comece a controlar seu dinheiro adicionando transações a esta conta.</p>
+                        <button onclick="showTransactionModal()" 
+                                class="btn-primary inline-flex items-center px-4 py-2 rounded-lg font-medium">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Adicionar primeira transação
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- Statistics Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="space-y-6">
+                    <!-- Account Statistics -->
+                    <div class="account-card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                            <span class="text-xl mr-2">📊</span>
+                            Estatísticas da Conta
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Balance Status -->
+                            <div class="stat-card bg-dark-700/60 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold {% if account.balance >= 0 %}text-success-400{% else %}text-danger-400{% endif %}">{{ account.balance_display }}</div>
+                                        <div class="text-sm text-gray-400">Saldo Atual</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-gradient-financial rounded-lg flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Account Type -->
+                            <div class="stat-card bg-dark-700/60 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-white">{{ account.get_account_type_display }}</div>
+                                        <div class="text-sm text-gray-400">Tipo de Conta</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Days Since Created -->
+                            <div class="stat-card bg-dark-700/60 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="text-2xl font-bold text-white">{% now "j" as today %}{{ account.created_at|timesince|truncatewords:1 }}</div>
+                                        <div class="text-sm text-gray-400">Idade da Conta</div>
+                                    </div>
+                                    <div class="w-12 h-12 bg-gradient-warning rounded-lg flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <!-- Quick Actions -->
+                    <div class="account-card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                            <span class="text-xl mr-2">⚡</span>
+                            Ações Rápidas
+                        </h3>
+                        
+                        <div class="space-y-3">
+                            <button onclick="showTransactionModal()" 
+                                    class="w-full flex items-center justify-center px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Adicionar Transação
+                            </button>
+                            
+                            <button onclick="showBalanceModal()" 
+                                    class="w-full flex items-center justify-center px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Atualizar Saldo
+                            </button>
+                            
+                            <a href="{% url 'accounts:account-list' %}?account_type={{ account.account_type }}" 
+                               class="w-full flex items-center justify-center px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                                Ver contas similares
+                            </a>
+                        </div>
+                    </div>
+
+                    
+                    <!-- Account Information -->
+                    <div class="account-card rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                            <span class="text-xl mr-2">ℹ️</span>
+                            Informações Técnicas
+                        </h3>
+                        
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">ID:</span>
+                                <span class="text-white font-mono">{{ account.id }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Tipo:</span>
+                                <span class="text-white font-mono">{{ account.account_type }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Moeda:</span>
+                                <span class="text-white font-mono">{{ account.currency }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Status:</span>
+                                <span class="text-white font-mono">{% if account.is_active %}ATIVO{% else %}INATIVO{% endif %}</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Criada:</span>
+                                <span class="text-white font-mono">{{ account.created_at|date:"d/m/Y" }}</span>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Atualizada:</span>
+                                <span class="text-white font-mono">{{ account.updated_at|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Modal (Placeholder) -->
+<div id="transaction-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-dark-800 rounded-xl border border-dark-700 p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white">Adicionar Transação</h3>
+                <button onclick="hideTransactionModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="text-center py-8">
+                <div class="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl">💳</span>
+                </div>
+                <p class="text-gray-400 mb-4">O gerenciamento de transações estará disponível quando o modelo de Transação for implementado.</p>
+                <button onclick="hideTransactionModal()" class="btn-primary">
+                    Em Breve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Balance Update Modal (Placeholder) -->
+<div id="balance-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-dark-800 rounded-xl border border-dark-700 p-6 w-full max-w-md">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-white">Atualizar Saldo</h3>
+                <button onclick="hideBalanceModal()" class="text-gray-400 hover:text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="text-center py-8">
+                <div class="w-16 h-16 bg-yellow-600/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl">⚡</span>
+                </div>
+                <p class="text-gray-400 mb-4">Por enquanto, use o botão "Editar Conta" para atualizar o saldo. Atualizações rápidas de saldo estarão disponíveis em uma versão futura.</p>
+                <div class="flex space-x-3">
+                    <button onclick="hideBalanceModal()" class="flex-1 btn-secondary px-4 py-2 rounded-lg font-medium transition-colors">
+                        Cancelar
+                    </button>
+                    <a href="{% url 'accounts:account-update' account.pk %}" class="flex-1 btn-primary text-center px-4 py-2 rounded-lg font-medium">
+                        Editar Conta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTransactionModal() {
+    document.getElementById('transaction-modal').classList.remove('hidden');
+}
+
+function hideTransactionModal() {
+    document.getElementById('transaction-modal').classList.add('hidden');
+}
+
+function showBalanceModal() {
+    document.getElementById('balance-modal').classList.remove('hidden');
+}
+
+function hideBalanceModal() {
+    document.getElementById('balance-modal').classList.add('hidden');
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    const transactionModal = document.getElementById('transaction-modal');
+    const balanceModal = document.getElementById('balance-modal');
+    
+    if (e.target === transactionModal) {
+        hideTransactionModal();
+    }
+    if (e.target === balanceModal) {
+        hideBalanceModal();
+    }
+});
+
+// Close modals on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        hideTransactionModal();
+        hideBalanceModal();
+    }
+});
+</script>
+{% endblock %}
