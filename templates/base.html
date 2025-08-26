@@ -185,31 +185,151 @@
                 <!-- Navigation Links -->
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Dashboard</a>
-                        <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Transações</a>
-                        <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Orçamentos</a>
-                        <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Metas</a>
-                        <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Relatórios</a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'users:dashboard' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Dashboard</a>
+                            <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Transações</a>
+                            <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Orçamentos</a>
+                            <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Metas</a>
+                            <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Relatórios</a>
+                        {% else %}
+                            <a href="{% url 'home' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Início</a>
+                            <a href="#recursos" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Recursos</a>
+                            <a href="#precos" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Preços</a>
+                        {% endif %}
                     </div>
                 </div>
                 
-                <!-- User menu -->
-                <div class="flex items-center space-x-4">
-                    <button class="text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5v-12"></path>
-                        </svg>
-                    </button>
-                    <button class="text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-400 hover:text-white p-2 rounded-md transition-colors duration-200">
+                        <span class="sr-only">Abrir menu</span>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                         </svg>
                     </button>
                 </div>
+                
+                <!-- User menu -->
+                <div class="hidden md:flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <!-- User dropdown menu -->
+                        <div class="relative">
+                            <button id="user-menu-button" class="flex items-center space-x-2 text-gray-300 hover:text-white p-2 rounded-md transition-colors duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                <span class="text-sm">{{ user.get_short_name|default:user.username }}</span>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <!-- Dropdown menu -->
+                            <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-dark-800 rounded-md shadow-lg border border-dark-700 z-50">
+                                <div class="py-1">
+                                    <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors duration-200">
+                                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                        Meu Perfil
+                                    </a>
+                                    <a href="{% url 'users:password_change' %}" class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-dark-700 transition-colors duration-200">
+                                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                        Alterar Senha
+                                    </a>
+                                    <div class="border-t border-dark-700"></div>
+                                    <form method="post" action="{% url 'users:logout' %}" class="block">
+                                        {% csrf_token %}
+                                        <button type="submit" class="logout-form-button w-full text-left block px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-dark-700 transition-colors duration-200">
+                                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                            </svg>
+                                            Sair
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Login/Signup buttons for unauthenticated users -->
+                        <a href="{% url 'users:login' %}" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                            Entrar
+                        </a>
+                        <a href="{% url 'users:signup' %}" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                            Criar Conta
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-800/95 backdrop-blur-sm border-t border-dark-700">
+            <div class="px-4 py-4 space-y-2">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'users:dashboard' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Dashboard</a>
+                    <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Transações</a>
+                    <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Orçamentos</a>
+                    <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Metas</a>
+                    <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Relatórios</a>
+                    <hr class="border-dark-600 my-4">
+                    <a href="{% url 'users:profile' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Meu Perfil</a>
+                    <form method="post" action="{% url 'users:logout' %}" class="block">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-form-button w-full text-left block text-red-400 hover:text-red-300 hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Sair</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'home' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Início</a>
+                    <a href="#recursos" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Recursos</a>
+                    <a href="#precos" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Preços</a>
+                    <hr class="border-dark-600 my-4">
+                    <a href="{% url 'users:login' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Entrar</a>
+                    <a href="{% url 'users:signup' %}" class="block bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 text-center">Criar Conta</a>
+                {% endif %}
             </div>
         </div>
     </nav>
     
+    <!-- Messages Display -->
+    {% if messages %}
+        <div class="messages-container fixed top-20 right-4 z-50 space-y-2">
+            {% for message in messages %}
+                <div class="message-alert max-w-sm bg-dark-800 border-l-4 p-4 rounded-md shadow-lg animate-slide-up
+                    {% if message.tags == 'error' or message.tags == 'danger' %}border-red-500 text-red-100
+                    {% elif message.tags == 'warning' %}border-yellow-500 text-yellow-100
+                    {% elif message.tags == 'success' %}border-green-500 text-green-100
+                    {% elif message.tags == 'info' %}border-blue-500 text-blue-100
+                    {% else %}border-gray-500 text-gray-100{% endif %}">
+                    <div class="flex">
+                        <div class="flex-1 text-sm">
+                            {{ message }}
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-gray-400 hover:text-gray-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <script>
+            // Auto-hide messages after 5 seconds
+            setTimeout(function() {
+                document.querySelectorAll('.message-alert').forEach(function(alert) {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateX(100%)';
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 300);
+                });
+            }, 5000);
+        </script>
+    {% endif %}
+
     <!-- Main Content -->
     <main class="flex-1">
         {% block content %}
@@ -257,17 +377,207 @@
     </main>
     
     <!-- Footer -->
-    <footer class="bg-dark-800/80 backdrop-blur-sm border-t border-dark-700 mt-auto">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <p class="text-gray-400">&copy; 2024 FinanPy. Todos os direitos reservados.</p>
-                <p class="text-gray-500 text-sm mt-2">Desenvolvido com Django e TailwindCSS</p>
+    <footer class="bg-dark-900/60 backdrop-blur-sm border-t border-dark-700 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Main Footer Content -->
+            <div class="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Brand Section -->
+                <div class="lg:col-span-1">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <div class="w-10 h-10 bg-gradient-financial rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">F</span>
+                        </div>
+                        <span class="text-2xl font-bold text-white">FinanPy</span>
+                    </div>
+                    <p class="text-gray-400 mb-6 leading-relaxed">
+                        Transformando a maneira como brasileiros gerenciam suas finanças com tecnologia inteligente e segurança bancária.
+                    </p>
+                    <div class="flex space-x-4">
+                        <!-- Social Links -->
+                        <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                            <span class="sr-only">Twitter</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                            <span class="sr-only">LinkedIn</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary-400 transition-colors duration-200">
+                            <span class="sr-only">Instagram</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.624 5.367 11.99 11.988 11.99s11.99-5.366 11.99-11.99C24.007 5.367 18.641.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.611-3.197-1.559-.748-.947-1.095-2.18-1.095-3.664 0-1.484.347-2.717 1.095-3.664.749-.948 1.9-1.559 3.197-1.559s2.448.611 3.197 1.559c.748.947 1.095 2.18 1.095 3.664s-.347 2.717-1.095 3.664c-.749.948-1.9 1.559-3.197 1.559zm7.138 0c-1.297 0-2.448-.611-3.197-1.559-.748-.947-1.095-2.18-1.095-3.664 0-1.484.347-2.717 1.095-3.664.749-.948 1.9-1.559 3.197-1.559s2.448.611 3.197 1.559c.748.947 1.095 2.18 1.095 3.664s-.347 2.717-1.095 3.664c-.749.948-1.9 1.559-3.197 1.559z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Product Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-6">Produto</h3>
+                    <ul class="space-y-4">
+                        <li><a href="#recursos" class="text-gray-400 hover:text-white transition-colors duration-200">Recursos</a></li>
+                        <li><a href="#precos" class="text-gray-400 hover:text-white transition-colors duration-200">Preços</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Demonstração</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">API</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Integrações</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Atualizações</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Company Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-6">Empresa</h3>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Sobre nós</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Carreiras</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Imprensa</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Parceiros</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Contato</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Support Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-6">Suporte</h3>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Central de Ajuda</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Tutoriais</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Status do Sistema</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Segurança</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Privacidade</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">Termos de Uso</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Security Badges -->
+            <div class="py-8 border-t border-dark-700">
+                <div class="flex flex-col lg:flex-row justify-between items-center">
+                    <div class="flex flex-col sm:flex-row items-center gap-6 mb-4 lg:mb-0">
+                        <!-- Security badges -->
+                        <div class="flex items-center bg-dark-800/60 rounded-lg px-4 py-2">
+                            <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300 text-sm font-medium">SSL 256-bit</span>
+                        </div>
+                        <div class="flex items-center bg-dark-800/60 rounded-lg px-4 py-2">
+                            <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300 text-sm font-medium">LGPD Compliant</span>
+                        </div>
+                        <div class="flex items-center bg-dark-800/60 rounded-lg px-4 py-2">
+                            <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-300 text-sm font-medium">SOC 2 Type II</span>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center lg:text-right">
+                        <p class="text-gray-400 text-sm">&copy; 2024 FinanPy. Todos os direitos reservados.</p>
+                        <p class="text-gray-500 text-xs mt-1">Desenvolvido no Brasil com 💚</p>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
     
     <!-- Custom JavaScript -->
     <script src="{% static 'js/main.js' %}"></script>
+    
+    <!-- Authentication UI JavaScript -->
+    <script>
+        // Mobile and user menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mobileMenu.classList.toggle('hidden');
+                    
+                    // Toggle hamburger icon animation
+                    const icon = this.querySelector('svg');
+                    if (mobileMenu.classList.contains('hidden')) {
+                        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                    } else {
+                        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+                    }
+                });
+                
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!mobileMenuButton.contains(e.target) && !mobileMenu.contains(e.target)) {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuButton.querySelector('svg');
+                        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                    }
+                });
+                
+                // Close mobile menu on link click
+                mobileMenu.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        mobileMenu.classList.add('hidden');
+                        const icon = mobileMenuButton.querySelector('svg');
+                        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>';
+                    });
+                });
+            }
+            
+            // User menu dropdown functionality
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userMenu = document.getElementById('user-menu');
+            
+            if (userMenuButton && userMenu) {
+                // Toggle dropdown on button click
+                userMenuButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('hidden');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.add('hidden');
+                    }
+                });
+                
+                // Close dropdown on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        userMenu.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Enhanced form validation for authentication forms
+            const authForms = document.querySelectorAll('form[data-auth-form]');
+            authForms.forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processando...';
+                        
+                        // Re-enable after 5 seconds as fallback
+                        setTimeout(function() {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = submitBtn.getAttribute('data-original-text') || 'Enviar';
+                        }, 5000);
+                    }
+                });
+            });
+        });
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>

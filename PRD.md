@@ -50,6 +50,7 @@ Proporcionar uma ferramenta completa e acessível para controle financeiro pesso
 
 ### 6.1 Autenticação e Usuários
 - Sistema de cadastro e login
+- Login por email ao invés de username
 - Recuperação de senha
 - Perfil do usuário com informações pessoais
 
@@ -374,7 +375,7 @@ erDiagram
 
 ## 10. Lista de Tarefas
 
-### Sprint 1: Configuração Inicial e Autenticação (2 semanas)
+### Sprint 1: Configuração Inicial e Autenticação (2 semanas) ✅
 
 #### Tarefa 1.1: Setup do Projeto ✅
 - [X] **1.1.1** Criar projeto Django com estrutura de apps
@@ -390,34 +391,34 @@ erDiagram
   - [X] Criar estrutura de templates base
   - [X] Configurar MEDIA_URL e MEDIA_ROOT
 
-#### Tarefa 1.2: Sistema de Usuários
-- [ ] **1.2.1** Configurar modelo de usuário customizado
-  - [ ] Criar modelo User herdando de AbstractUser
-  - [ ] Configurar AUTH_USER_MODEL no settings
-  - [ ] Criar e executar migrações
-- [ ] **1.2.2** Implementar views de autenticação
-  - [ ] LoginView customizada com template
-  - [ ] LogoutView com redirecionamento
-  - [ ] SignUpView para cadastro
-  - [ ] PasswordResetView para recuperação
-- [ ] **1.2.3** Criar templates de autenticação
-  - [ ] Template base com navbar responsiva
-  - [ ] Formulário de login estilizado
-  - [ ] Formulário de cadastro
-  - [ ] Páginas de recuperação de senha
+#### Tarefa 1.2: Sistema de Usuários ✅
+- [X] **1.2.1** Configurar modelo de usuário customizado
+  - [X] Criar modelo User herdando de AbstractUser
+  - [X] Configurar AUTH_USER_MODEL no settings
+  - [X] Criar e executar migrações
+- [X] **1.2.2** Implementar views de autenticação
+  - [X] LoginView customizada com template
+  - [X] LogoutView com redirecionamento
+  - [X] SignUpView para cadastro
+  - [X] PasswordResetView para recuperação
+- [X] **1.2.3** Criar templates de autenticação
+  - [X] Template base com navbar responsiva
+  - [X] Formulário de login estilizado
+  - [X] Formulário de cadastro
+  - [X] Páginas de recuperação de senha
 
-#### Tarefa 1.3: App Profiles
-- [ ] **1.3.1** Criar modelo Profile
-  - [ ] OneToOneField com User
-  - [ ] Campos: first_name, last_name, phone, birth_date, bio
-  - [ ] Timestamps created_at, updated_at
-- [ ] **1.3.2** Implementar ProfileDetailView e ProfileUpdateView
-  - [ ] View para exibir perfil do usuário
-  - [ ] Form para edição de dados pessoais
-  - [ ] Template responsivo para perfil
-- [ ] **1.3.3** Configurar signal para criação automática de perfil
-  - [ ] Signal post_save do User para criar Profile
-  - [ ] Testes de criação automática
+#### Tarefa 1.3: App Profiles ✅
+- [X] **1.3.1** Criar modelo Profile
+  - [X] OneToOneField com User
+  - [X] Campos: first_name, last_name, phone, birth_date, bio
+  - [X] Timestamps created_at, updated_at
+- [X] **1.3.2** Implementar ProfileDetailView e ProfileUpdateView
+  - [X] View para exibir perfil do usuário
+  - [X] Form para edição de dados pessoais
+  - [X] Template responsivo para perfil
+- [X] **1.3.3** Configurar signal para criação automática de perfil
+  - [X] Signal post_save do User para criar Profile
+  - [X] Testes de criação automática
 
 ### Sprint 2: Contas e Categorias (2 semanas)
 

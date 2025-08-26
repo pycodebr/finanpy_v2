@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Perfil - FinanPy{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+    <!-- Header -->
+    <div class="bg-dark-800/80 backdrop-blur-sm border-b border-dark-700">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ cancel_url }}" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-dark-700 transition-colors duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Editar Perfil</h1>
+                        <p class="text-gray-400">Atualize suas informações pessoais</p>
+                    </div>
+                </div>
+                
+                <!-- Progress Indicator -->
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-gray-400">{{ completion_percentage }}% completo</span>
+                    <div class="w-16 h-2 bg-dark-600 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500" 
+                             style="width: {{ completion_percentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Main Form -->
+                <div class="lg:col-span-2">
+                    <div class="card">
+                        <div class="mb-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Informações Pessoais</h3>
+                            <p class="text-gray-400 text-sm">Mantenha suas informações atualizadas para uma melhor experiência</p>
+                        </div>
+                        
+                        <!-- Form Fields -->
+                        <div class="space-y-6">
+                            <!-- Name Fields Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- First Name -->
+                                <div>
+                                    <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                        {{ form.first_name.label }}
+                                        {% if form.first_name.field.required %}<span class="text-red-400">*</span>{% endif %}
+                                    </label>
+                                    <input type="text" 
+                                           name="{{ form.first_name.name }}" 
+                                           id="{{ form.first_name.id_for_label }}"
+                                           value="{{ form.first_name.value|default_if_none:'' }}"
+                                           placeholder="Digite seu primeiro nome"
+                                           maxlength="30"
+                                           class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.first_name.errors %}border-danger-500 focus:border-danger-500 focus:ring-danger-500{% endif %}"
+                                           {% if form.first_name.field.required %}required{% endif %}>
+                                    {% if form.first_name.help_text %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form.first_name.help_text }}</p>
+                                    {% endif %}
+                                    {% if form.first_name.errors %}
+                                        <div class="mt-1">
+                                            {% for error in form.first_name.errors %}
+                                                <p class="text-xs text-red-400">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Last Name -->
+                                <div>
+                                    <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                        {{ form.last_name.label }}
+                                        {% if form.last_name.field.required %}<span class="text-red-400">*</span>{% endif %}
+                                    </label>
+                                    <input type="text" 
+                                           name="{{ form.last_name.name }}" 
+                                           id="{{ form.last_name.id_for_label }}"
+                                           value="{{ form.last_name.value|default_if_none:'' }}"
+                                           placeholder="Digite seu sobrenome"
+                                           maxlength="30"
+                                           class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.last_name.errors %}border-danger-500 focus:border-danger-500 focus:ring-danger-500{% endif %}"
+                                           {% if form.last_name.field.required %}required{% endif %}>
+                                    {% if form.last_name.help_text %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form.last_name.help_text }}</p>
+                                    {% endif %}
+                                    {% if form.last_name.errors %}
+                                        <div class="mt-1">
+                                            {% for error in form.last_name.errors %}
+                                                <p class="text-xs text-red-400">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Contact Information Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Phone -->
+                                <div>
+                                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                        {{ form.phone.label }}
+                                        {% if form.phone.field.required %}<span class="text-red-400">*</span>{% endif %}
+                                    </label>
+                                    <input type="tel" 
+                                           name="{{ form.phone.name }}" 
+                                           id="{{ form.phone.id_for_label }}"
+                                           value="{{ form.phone.value|default_if_none:'' }}"
+                                           placeholder="+5511999999999"
+                                           maxlength="17"
+                                           class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.phone.errors %}border-danger-500 focus:border-danger-500 focus:ring-danger-500{% endif %}"
+                                           {% if form.phone.field.required %}required{% endif %}>
+                                    {% if form.phone.help_text %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form.phone.help_text }}</p>
+                                    {% endif %}
+                                    {% if form.phone.errors %}
+                                        <div class="mt-1">
+                                            {% for error in form.phone.errors %}
+                                                <p class="text-xs text-red-400">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Birth Date -->
+                                <div>
+                                    <label for="{{ form.birth_date.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                        {{ form.birth_date.label }}
+                                        {% if form.birth_date.field.required %}<span class="text-red-400">*</span>{% endif %}
+                                    </label>
+                                    <input type="date" 
+                                           name="{{ form.birth_date.name }}" 
+                                           id="{{ form.birth_date.id_for_label }}"
+                                           value="{{ form.birth_date.value|date:'Y-m-d'|default_if_none:'' }}"
+                                           max="{% now 'Y-m-d' %}"
+                                           class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.birth_date.errors %}border-danger-500 focus:border-danger-500 focus:ring-danger-500{% endif %}"
+                                           {% if form.birth_date.field.required %}required{% endif %}>
+                                    {% if form.birth_date.help_text %}
+                                        <p class="mt-1 text-xs text-gray-500">{{ form.birth_date.help_text }}</p>
+                                    {% endif %}
+                                    {% if form.birth_date.errors %}
+                                        <div class="mt-1">
+                                            {% for error in form.birth_date.errors %}
+                                                <p class="text-xs text-red-400">{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Biography -->
+                            <div>
+                                <label for="{{ form.bio.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ form.bio.label }}
+                                    {% if form.bio.field.required %}<span class="text-red-400">*</span>{% endif %}
+                                </label>
+                                <textarea name="{{ form.bio.name }}" 
+                                          id="{{ form.bio.id_for_label }}"
+                                          rows="4"
+                                          maxlength="500"
+                                          placeholder="Conte um pouco sobre você..."
+                                          class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none {% if form.bio.errors %}border-danger-500 focus:border-danger-500 focus:ring-danger-500{% endif %}"
+                                          {% if form.bio.field.required %}required{% endif %}>{{ form.bio.value|default_if_none:'' }}</textarea>
+                                <div class="flex justify-between items-center mt-1">
+                                    {% if form.bio.help_text %}
+                                        <p class="text-xs text-gray-500">{{ form.bio.help_text }}</p>
+                                    {% endif %}
+                                    <p class="text-xs text-gray-500" id="bio-counter">0/500 caracteres</p>
+                                </div>
+                                {% if form.bio.errors %}
+                                    <div class="mt-1">
+                                        {% for error in form.bio.errors %}
+                                            <p class="text-xs text-red-400">{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 mt-8 pt-6 border-t border-dark-700">
+                            <a href="{{ cancel_url }}" class="px-6 py-3 bg-dark-700 hover:bg-dark-600 text-gray-300 hover:text-white rounded-lg transition-colors duration-200 text-center">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn-primary px-8 py-3 flex items-center justify-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span>Salvar Alterações</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Profile Preview -->
+                    <div class="card">
+                        <h4 class="text-lg font-semibold text-white mb-4">Pré-visualização</h4>
+                        
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-12 h-12 bg-gradient-financial rounded-full flex items-center justify-center text-lg font-bold text-white">
+                                <span id="avatar-preview">{{ profile.first_name|first|default:user.username|first|upper }}</span>
+                            </div>
+                            <div>
+                                <p class="text-white font-medium" id="name-preview">
+                                    {{ profile.get_full_name|default:user.username }}
+                                </p>
+                                <p class="text-gray-400 text-sm">{{ user.email }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Progresso:</span>
+                                <span class="text-white" id="progress-preview">{{ completion_percentage }}%</span>
+                            </div>
+                            <div class="w-full h-2 bg-dark-600 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500" 
+                                     style="width: {{ completion_percentage }}%" id="progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tips Card -->
+                    <div class="card">
+                        <h4 class="text-lg font-semibold text-white mb-4 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Dicas
+                        </h4>
+                        
+                        <div class="space-y-3 text-sm text-gray-400">
+                            <div class="flex items-start space-x-2">
+                                <span class="text-blue-400 flex-shrink-0 mt-1">•</span>
+                                <p>Preencha todos os campos para melhorar sua experiência</p>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <span class="text-blue-400 flex-shrink-0 mt-1">•</span>
+                                <p>Use o formato +55 para números de telefone brasileiros</p>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <span class="text-blue-400 flex-shrink-0 mt-1">•</span>
+                                <p>A biografia é opcional, mas ajuda outros usuários a conhecê-lo</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Security Note -->
+                    <div class="card bg-green-900/10 border border-green-600/20">
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            <div>
+                                <p class="text-green-400 font-medium text-sm">Segurança</p>
+                                <p class="text-green-200 text-xs mt-1">Suas informações são criptografadas e seguras. Só você pode vê-las e editá-las.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Profile Edit JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const firstNameField = document.getElementById('{{ form.first_name.id_for_label }}');
+    const lastNameField = document.getElementById('{{ form.last_name.id_for_label }}');
+    const bioField = document.getElementById('{{ form.bio.id_for_label }}');
+    const phoneField = document.getElementById('{{ form.phone.id_for_label }}');
+    const birthDateField = document.getElementById('{{ form.birth_date.id_for_label }}');
+    
+    const namePreview = document.getElementById('name-preview');
+    const avatarPreview = document.getElementById('avatar-preview');
+    const progressPreview = document.getElementById('progress-preview');
+    const progressBar = document.getElementById('progress-bar');
+    const bioCounter = document.getElementById('bio-counter');
+    
+    // Update bio character counter
+    function updateBioCounter() {
+        const count = bioField.value.length;
+        bioCounter.textContent = `${count}/500 caracteres`;
+        
+        if (count > 450) {
+            bioCounter.className = 'text-xs text-yellow-400';
+        } else if (count > 480) {
+            bioCounter.className = 'text-xs text-red-400';
+        } else {
+            bioCounter.className = 'text-xs text-gray-500';
+        }
+    }
+    
+    // Calculate completion percentage
+    function calculateProgress() {
+        const fields = [firstNameField, lastNameField, phoneField, birthDateField, bioField];
+        const filledFields = fields.filter(field => field.value.trim() !== '').length;
+        return Math.round((filledFields / fields.length) * 100);
+    }
+    
+    // Update preview
+    function updatePreview() {
+        // Update name preview
+        const firstName = firstNameField.value.trim();
+        const lastName = lastNameField.value.trim();
+        let fullName = '';
+        
+        if (firstName && lastName) {
+            fullName = `${firstName} ${lastName}`;
+        } else if (firstName) {
+            fullName = firstName;
+        } else if (lastName) {
+            fullName = lastName;
+        } else {
+            fullName = '{{ user.username }}';
+        }
+        
+        namePreview.textContent = fullName;
+        
+        // Update avatar
+        const initial = firstName ? firstName.charAt(0).toUpperCase() : '{{ user.username|first|upper }}';
+        avatarPreview.textContent = initial;
+        
+        // Update progress
+        const progress = calculateProgress();
+        progressPreview.textContent = `${progress}%`;
+        progressBar.style.width = `${progress}%`;
+    }
+    
+    // Add event listeners
+    if (bioField) {
+        updateBioCounter();
+        bioField.addEventListener('input', updateBioCounter);
+    }
+    
+    [firstNameField, lastNameField, phoneField, birthDateField, bioField].forEach(field => {
+        if (field) {
+            field.addEventListener('input', updatePreview);
+        }
+    });
+    
+    // Initial update
+    updatePreview();
+    
+    // Phone number formatting
+    if (phoneField) {
+        phoneField.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Add +55 prefix if starts with Brazilian mobile pattern
+            if (value.length >= 10 && !value.startsWith('55') && (value.charAt(2) === '9' || value.charAt(0) === '9')) {
+                value = '55' + value;
+            }
+            
+            // Format the number
+            if (value.length > 2) {
+                if (value.startsWith('55')) {
+                    value = '+55 ' + value.substring(2);
+                } else if (value.length >= 1) {
+                    value = '+' + value;
+                }
+            }
+            
+            e.target.value = value;
+        });
+    }
+    
+    // Form validation feedback
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg class="animate-spin w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4m0 12v4m8-10h-4M4 12H0m15.314-7.314l-2.828 2.828M9.514 16.486l-2.828 2.828M16.486 16.486l2.828-2.828M7.514 7.514L4.686 4.686"></path>
+            </svg>
+            Salvando...
+        `;
+    });
+});
+</script>
+{% endblock %}

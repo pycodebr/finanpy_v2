@@ -65,6 +65,15 @@
     @apply bg-dark-600 rounded-full hover:bg-dark-500;
 }
 
+/* Logout form button styles - make them look like regular links */
+.logout-form-button {
+    @apply border-0 bg-transparent p-0 m-0 font-inherit cursor-pointer outline-none;
+}
+
+.logout-form-button:focus {
+    @apply outline-none ring-0;
+}
+
 /* Print styles */
 @media print {
     .no-print {

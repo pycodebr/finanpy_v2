@@ -1,0 +1,518 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - FinanPy{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js for financial charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+    <!-- Dashboard Header -->
+    <div class="bg-dark-800/80 backdrop-blur-sm border-b border-dark-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white flex items-center">
+                        <svg class="w-8 h-8 mr-3 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Dashboard
+                    </h1>
+                    <p class="text-gray-400 mt-1">
+                        Olá, {{ user_full_name|default:user.username }}! 
+                        <span class="text-sm">
+                            {% if last_login %}
+                                Último acesso: {{ last_login|date:"d/m/Y à\s H:i" }}
+                            {% else %}
+                                Bem-vindo ao FinanPy!
+                            {% endif %}
+                        </span>
+                    </p>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="btn-primary flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <span>Nova Transação</span>
+                    </button>
+                    <button class="bg-dark-700 hover:bg-dark-600 text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        <span>Exportar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Financial Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Balance Card -->
+            <div class="card group hover:shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Saldo Total</p>
+                        <p class="text-2xl font-bold text-white group-hover:text-primary-300 transition-colors duration-200">
+                            R$ 12.547,89
+                        </p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-green-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                            <span class="text-green-400 text-sm font-medium">+5.2%</span>
+                            <span class="text-gray-500 text-sm ml-1">vs. mês anterior</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-gradient-financial rounded-full">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Income Card -->
+            <div class="card group hover:shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Receitas do Mês</p>
+                        <p class="text-2xl font-bold text-white group-hover:text-green-300 transition-colors duration-200">
+                            R$ 8.250,00
+                        </p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-green-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                            <span class="text-green-400 text-sm font-medium">+12.5%</span>
+                            <span class="text-gray-500 text-sm ml-1">vs. meta</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-gradient-success rounded-full">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Expenses Card -->
+            <div class="card group hover:shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Gastos do Mês</p>
+                        <p class="text-2xl font-bold text-white group-hover:text-red-300 transition-colors duration-200">
+                            R$ 5.890,45
+                        </p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-red-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                            </svg>
+                            <span class="text-red-400 text-sm font-medium">+8.3%</span>
+                            <span class="text-gray-500 text-sm ml-1">vs. orçamento</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-gradient-danger rounded-full">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Savings Card -->
+            <div class="card group hover:shadow-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium">Economia Este Mês</p>
+                        <p class="text-2xl font-bold text-white group-hover:text-yellow-300 transition-colors duration-200">
+                            R$ 2.359,55
+                        </p>
+                        <div class="flex items-center mt-2">
+                            <svg class="w-4 h-4 text-yellow-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                            <span class="text-yellow-400 text-sm font-medium">28.6%</span>
+                            <span class="text-gray-500 text-sm ml-1">da receita</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-gradient-warning rounded-full">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Charts and Analytics -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Financial Overview Chart -->
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-semibold text-white">Resumo Financeiro</h3>
+                        <div class="flex items-center space-x-2">
+                            <select class="bg-dark-700 text-gray-300 text-sm rounded-lg px-3 py-1 border border-dark-600 focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <option>Últimos 6 meses</option>
+                                <option>Últimos 3 meses</option>
+                                <option>Este ano</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Spending Chart -->
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-semibold text-white">Gastos por Categoria</h3>
+                        <span class="text-sm text-gray-400">Este mês</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                        <div class="h-64">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-dark-700/50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-300">Alimentação</span>
+                                </div>
+                                <span class="text-white font-medium">R$ 1.850,30</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-dark-700/50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    <span class="text-gray-300">Transporte</span>
+                                </div>
+                                <span class="text-white font-medium">R$ 920,15</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-dark-700/50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                    <span class="text-gray-300">Lazer</span>
+                                </div>
+                                <span class="text-white font-medium">R$ 680,50</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-dark-700/50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                                    <span class="text-gray-300">Outros</span>
+                                </div>
+                                <span class="text-white font-medium">R$ 2.439,50</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Recent Activity and Quick Actions -->
+            <div class="space-y-8">
+                <!-- Budget Progress -->
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-white">Orçamentos</h3>
+                        <a href="#" class="text-primary-400 hover:text-primary-300 text-sm">Ver todos</a>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-dark-700/50 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-300 font-medium">Alimentação</span>
+                                <span class="text-sm text-gray-400">R$ 1.850 / R$ 2.000</span>
+                            </div>
+                            <div class="w-full bg-dark-600 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-yellow-500 to-red-500 h-2 rounded-full" style="width: 92.5%"></div>
+                            </div>
+                            <p class="text-xs text-yellow-400 mt-1">92% utilizado</p>
+                        </div>
+                        
+                        <div class="p-4 bg-dark-700/50 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-300 font-medium">Transporte</span>
+                                <span class="text-sm text-gray-400">R$ 920 / R$ 1.200</span>
+                            </div>
+                            <div class="w-full bg-dark-600 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" style="width: 76.7%"></div>
+                            </div>
+                            <p class="text-xs text-green-400 mt-1">77% utilizado</p>
+                        </div>
+
+                        <div class="p-4 bg-dark-700/50 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-300 font-medium">Lazer</span>
+                                <span class="text-sm text-gray-400">R$ 680 / R$ 800</span>
+                            </div>
+                            <div class="w-full bg-dark-600 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                            <p class="text-xs text-blue-400 mt-1">85% utilizado</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-white">Transações Recentes</h3>
+                        <a href="#" class="text-primary-400 hover:text-primary-300 text-sm">Ver todas</a>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-dark-700/30 rounded-lg hover:bg-dark-700/50 transition-colors duration-200">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-green-900/30 rounded-lg">
+                                    <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-300 font-medium">Salário</p>
+                                    <p class="text-xs text-gray-500">Hoje às 09:00</p>
+                                </div>
+                            </div>
+                            <span class="text-green-400 font-medium">+R$ 5.000,00</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-dark-700/30 rounded-lg hover:bg-dark-700/50 transition-colors duration-200">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-red-900/30 rounded-lg">
+                                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 3H3m4 10v6a1 1 0 001 1h9a1 1 0 001-1v-6M9 21h6"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-300 font-medium">Supermercado</p>
+                                    <p class="text-xs text-gray-500">Ontem às 16:30</p>
+                                </div>
+                            </div>
+                            <span class="text-red-400 font-medium">-R$ 287,45</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-dark-700/30 rounded-lg hover:bg-dark-700/50 transition-colors duration-200">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-blue-900/30 rounded-lg">
+                                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M10 3v4h4V3m-4 14h4v4h-4v-4Z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-300 font-medium">Cinema</p>
+                                    <p class="text-xs text-gray-500">Sábado às 20:00</p>
+                                </div>
+                            </div>
+                            <span class="text-red-400 font-medium">-R$ 86,00</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-dark-700/30 rounded-lg hover:bg-dark-700/50 transition-colors duration-200">
+                            <div class="flex items-center space-x-3">
+                                <div class="p-2 bg-purple-900/30 rounded-lg">
+                                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-300 font-medium">Conta de Luz</p>
+                                    <p class="text-xs text-gray-500">Sexta às 14:22</p>
+                                </div>
+                            </div>
+                            <span class="text-red-400 font-medium">-R$ 156,78</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Goals -->
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-white">Metas Financeiras</h3>
+                        <a href="#" class="text-primary-400 hover:text-primary-300 text-sm">Gerenciar</a>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-dark-700/50 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-300 font-medium">Viagem de Férias</span>
+                                <span class="text-sm text-gray-400">R$ 7.500 / R$ 10.000</span>
+                            </div>
+                            <div class="w-full bg-dark-600 rounded-full h-2 mb-2">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style="width: 75%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-blue-400">75% concluído</span>
+                                <span class="text-gray-500">Faltam 4 meses</span>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-dark-700/50 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-gray-300 font-medium">Reserva de Emergência</span>
+                                <span class="text-sm text-gray-400">R$ 12.000 / R$ 15.000</span>
+                            </div>
+                            <div class="w-full bg-dark-600 rounded-full h-2 mb-2">
+                                <div class="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full" style="width: 80%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-green-400">80% concluído</span>
+                                <span class="text-gray-500">Faltam R$ 3.000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Financial Overview Chart
+    const financialCtx = document.getElementById('financialChart').getContext('2d');
+    const financialChart = new Chart(financialCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+            datasets: [
+                {
+                    label: 'Receitas',
+                    data: [7800, 8200, 7900, 8500, 8100, 8250],
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Despesas',
+                    data: [6200, 5800, 6500, 5900, 6100, 5890],
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#d1d5db'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#9ca3af'
+                    },
+                    grid: {
+                        color: 'rgba(107, 114, 128, 0.3)'
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#9ca3af',
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR');
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(107, 114, 128, 0.3)'
+                    }
+                }
+            },
+            interaction: {
+                intersect: false
+            }
+        }
+    });
+
+    // Category Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    const categoryChart = new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Alimentação', 'Transporte', 'Lazer', 'Outros'],
+            datasets: [{
+                data: [1850.30, 920.15, 680.50, 2439.50],
+                backgroundColor: [
+                    '#3b82f6',
+                    '#22c55e',
+                    '#f59e0b',
+                    '#8b5cf6'
+                ],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': R$ ' + context.parsed.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    // Add smooth animations on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-fade-in-up');
+            }
+        });
+    }, observerOptions);
+
+    // Observe all cards
+    document.querySelectorAll('.card').forEach(card => {
+        observer.observe(card);
+    });
+
+    // Add hover effects to chart cards
+    document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-2px)';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Real-time data updates simulation (every 30 seconds)
+    setInterval(() => {
+        // Add subtle animation to indicate live updates
+        const balanceCard = document.querySelector('.grid .card:first-child');
+        balanceCard.classList.add('animate-pulse');
+        setTimeout(() => {
+            balanceCard.classList.remove('animate-pulse');
+        }, 1000);
+    }, 30000);
+});
+</script>
+{% endblock %}

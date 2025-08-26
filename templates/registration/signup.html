@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Criar Conta - FinanPy{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 bg-gradient-success rounded-full flex items-center justify-center mb-6">
+                <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-white mb-2">
+                Crie sua conta
+            </h2>
+            <p class="text-gray-400">
+                Comece a gerenciar suas finanças de forma inteligente
+            </p>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="bg-dark-800/80 backdrop-blur-sm rounded-xl p-8 border border-dark-700 shadow-2xl">
+            <form class="space-y-6" method="post" data-auth-form>
+                {% csrf_token %}
+                
+                <!-- Email Field -->
+                <div>
+                    <label for="id_email" class="block text-sm font-medium text-gray-300 mb-2">
+                        Email
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                            </svg>
+                        </div>
+                        <input id="id_email" 
+                               name="email" 
+                               type="email" 
+                               required 
+                               class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 pl-10 w-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.email.errors %}border-danger-500 focus:ring-danger-500{% endif %}"
+                               placeholder="seu@email.com"
+                               value="{{ form.email.value|default:'' }}"
+                               autocomplete="email">
+                    </div>
+                    {% if form.email.errors %}
+                        <div class="mt-1 text-sm text-red-400">
+                            {% for error in form.email.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Este será seu login no sistema.</p>
+                </div>
+
+                <!-- First Name Field -->
+                <div>
+                    <label for="id_first_name" class="block text-sm font-medium text-gray-300 mb-2">
+                        Nome
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <input id="id_first_name" 
+                               name="first_name" 
+                               type="text" 
+                               class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 pl-10 w-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.first_name.errors %}border-danger-500 focus:ring-danger-500{% endif %}"
+                               placeholder="Digite seu primeiro nome"
+                               value="{{ form.first_name.value|default:'' }}"
+                               autocomplete="given-name">
+                    </div>
+                    {% if form.first_name.errors %}
+                        <div class="mt-1 text-sm text-red-400">
+                            {% for error in form.first_name.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Last Name Field -->
+                <div>
+                    <label for="id_last_name" class="block text-sm font-medium text-gray-300 mb-2">
+                        Sobrenome
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <input id="id_last_name" 
+                               name="last_name" 
+                               type="text" 
+                               class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 pl-10 w-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.last_name.errors %}border-danger-500 focus:ring-danger-500{% endif %}"
+                               placeholder="Digite seu sobrenome"
+                               value="{{ form.last_name.value|default:'' }}"
+                               autocomplete="family-name">
+                    </div>
+                    {% if form.last_name.errors %}
+                        <div class="mt-1 text-sm text-red-400">
+                            {% for error in form.last_name.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="id_password1" class="block text-sm font-medium text-gray-300 mb-2">
+                        Senha
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <input id="id_password1" 
+                               name="password1" 
+                               type="password" 
+                               required 
+                               class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 pl-10 pr-10 w-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.password1.errors %}border-danger-500 focus:ring-danger-500{% endif %}"
+                               placeholder="Crie uma senha segura"
+                               autocomplete="new-password">
+                        <!-- Password visibility toggle -->
+                        <button type="button" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                onclick="togglePassword('id_password1', this)">
+                            <svg class="h-5 w-5 text-gray-400 hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    {% if form.password1.errors %}
+                        <div class="mt-1 text-sm text-red-400">
+                            {% for error in form.password1.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <!-- Password strength indicator -->
+                    <div class="mt-2">
+                        <div id="password-strength" class="text-xs text-gray-500">
+                            <div class="flex space-x-1 mt-1">
+                                <div id="strength-bar-1" class="h-1 w-1/4 bg-gray-600 rounded"></div>
+                                <div id="strength-bar-2" class="h-1 w-1/4 bg-gray-600 rounded"></div>
+                                <div id="strength-bar-3" class="h-1 w-1/4 bg-gray-600 rounded"></div>
+                                <div id="strength-bar-4" class="h-1 w-1/4 bg-gray-600 rounded"></div>
+                            </div>
+                            <p id="strength-text" class="mt-1">Digite uma senha para ver a força</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Confirmation Field -->
+                <div>
+                    <label for="id_password2" class="block text-sm font-medium text-gray-300 mb-2">
+                        Confirme a senha
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <input id="id_password2" 
+                               name="password2" 
+                               type="password" 
+                               required 
+                               class="bg-dark-700 border border-dark-600 rounded-lg px-3 py-2 pl-10 pr-10 w-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 {% if form.password2.errors %}border-danger-500 focus:ring-danger-500{% endif %}"
+                               placeholder="Digite a senha novamente"
+                               autocomplete="new-password">
+                        <!-- Password visibility toggle -->
+                        <button type="button" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                onclick="togglePassword('id_password2', this)">
+                            <svg class="h-5 w-5 text-gray-400 hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}
+                        <div class="mt-1 text-sm text-red-400">
+                            {% for error in form.password2.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Terms and Privacy -->
+                <div class="flex items-center">
+                    <input id="accept_terms" 
+                           name="accept_terms" 
+                           type="checkbox" 
+                           required
+                           class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-dark-600 bg-dark-700 rounded">
+                    <label for="accept_terms" class="ml-2 block text-sm text-gray-300">
+                        Aceito os 
+                        <a href="#" class="text-primary-400 hover:text-primary-300">Termos de Uso</a> 
+                        e 
+                        <a href="#" class="text-primary-400 hover:text-primary-300">Política de Privacidade</a>
+                    </label>
+                </div>
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div class="bg-red-900/20 border border-red-500 rounded-lg p-3">
+                        {% for error in form.non_field_errors %}
+                            <p class="text-sm text-red-400">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit" 
+                            data-original-text="Criar Conta"
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-success hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 focus:ring-offset-dark-800 transition-all duration-200 transform hover:scale-105">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <svg class="h-5 w-5 text-white/80 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                        </span>
+                        Criar Conta
+                    </button>
+                </div>
+
+                <!-- Login Link -->
+                <div class="text-center pt-4 border-t border-dark-700">
+                    <p class="text-gray-400 text-sm">
+                        Já tem uma conta?
+                        <a href="{% url 'users:login' %}" class="text-primary-400 hover:text-primary-300 font-medium transition-colors duration-200">
+                            Fazer login
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="text-center">
+            <p class="text-xs text-gray-500">
+                <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                Seus dados estão protegidos com criptografia de ponta
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for enhanced functionality -->
+<script>
+// Password visibility toggle function
+function togglePassword(inputId, button) {
+    const passwordField = document.getElementById(inputId);
+    const isPassword = passwordField.type === 'password';
+    
+    passwordField.type = isPassword ? 'text' : 'password';
+    
+    // Update icon
+    const icon = button.querySelector('svg');
+    if (isPassword) {
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L12 12m0 0l3.29 3.29M12 12l6.879-6.878"></path>
+        `;
+    } else {
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        `;
+    }
+}
+
+// Password strength checker
+document.addEventListener('DOMContentLoaded', function() {
+    const password1 = document.getElementById('id_password1');
+    const password2 = document.getElementById('id_password2');
+    
+    if (password1) {
+        password1.addEventListener('input', function() {
+            const password = this.value;
+            checkPasswordStrength(password);
+            checkPasswordMatch();
+        });
+    }
+    
+    if (password2) {
+        password2.addEventListener('input', checkPasswordMatch);
+    }
+    
+    function checkPasswordStrength(password) {
+        const strengthBars = [
+            document.getElementById('strength-bar-1'),
+            document.getElementById('strength-bar-2'),
+            document.getElementById('strength-bar-3'),
+            document.getElementById('strength-bar-4')
+        ];
+        const strengthText = document.getElementById('strength-text');
+        
+        // Reset bars
+        strengthBars.forEach(bar => {
+            bar.className = 'h-1 w-1/4 bg-gray-600 rounded';
+        });
+        
+        if (password.length === 0) {
+            strengthText.textContent = 'Digite uma senha para ver a força';
+            strengthText.className = 'mt-1 text-xs text-gray-500';
+            return;
+        }
+        
+        let score = 0;
+        let feedback = [];
+        
+        // Length check
+        if (password.length >= 8) score++;
+        else feedback.push('pelo menos 8 caracteres');
+        
+        // Lowercase and uppercase
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+        else feedback.push('maiúsculas e minúsculas');
+        
+        // Numbers
+        if (/\d/.test(password)) score++;
+        else feedback.push('números');
+        
+        // Special characters
+        if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++;
+        else feedback.push('caracteres especiais');
+        
+        // Update strength bars
+        const colors = ['bg-red-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500'];
+        const labels = ['Muito fraca', 'Fraca', 'Média', 'Forte'];
+        const textColors = ['text-red-400', 'text-yellow-400', 'text-blue-400', 'text-green-400'];
+        
+        for (let i = 0; i < score; i++) {
+            strengthBars[i].className = `h-1 w-1/4 ${colors[Math.min(score - 1, 3)]} rounded`;
+        }
+        
+        if (score === 4) {
+            strengthText.textContent = 'Senha forte!';
+            strengthText.className = `mt-1 text-xs ${textColors[3]}`;
+        } else {
+            strengthText.textContent = `${labels[Math.max(score - 1, 0)]}. Precisa de: ${feedback.join(', ')}`;
+            strengthText.className = `mt-1 text-xs ${textColors[Math.max(score - 1, 0)]}`;
+        }
+    }
+    
+    function checkPasswordMatch() {
+        const password1 = document.getElementById('id_password1');
+        const password2 = document.getElementById('id_password2');
+        
+        if (!password1 || !password2) return;
+        
+        if (password2.value && password1.value !== password2.value) {
+            password2.className = password2.className.replace('focus:ring-blue-500', 'focus:ring-red-500').replace('border-gray-600', 'border-red-500');
+        } else if (password2.value && password1.value === password2.value) {
+            password2.className = password2.className.replace('focus:ring-red-500', 'focus:ring-green-500').replace('border-red-500', 'border-green-500');
+        } else {
+            password2.className = password2.className.replace('focus:ring-red-500', 'focus:ring-blue-500').replace('focus:ring-green-500', 'focus:ring-blue-500').replace('border-red-500', 'border-gray-600').replace('border-green-500', 'border-gray-600');
+        }
+    }
+});
+</script>
+{% endblock %}

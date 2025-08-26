@@ -1,225 +1,807 @@
 {% extends 'base.html' %}
 
-{% block title %}FinanPy - Dashboard{% endblock %}
+{% block title %}FinanPy - Gestão Financeira Inteligente{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <!-- Header Section -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-white mb-2">Dashboard Financeiro</h1>
-        <p class="text-gray-400">Visão geral das suas finanças</p>
-    </div>
-    
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Saldo Total -->
-        <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700 hover:border-success-500 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Saldo Total</p>
-                    <p class="text-2xl font-bold text-success-400">R$ 15.240,00</p>
-                    <p class="text-success-500 text-sm font-medium">+12.5% este mês</p>
-                </div>
-                <div class="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+<!-- Hero Section -->
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-dark-900/40 to-success-900/20"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <!-- Left Column - Content -->
+            <div class="text-center lg:text-left animate-fade-in">
+                <div class="inline-flex items-center bg-primary-600/20 border border-primary-500/30 rounded-full px-4 py-2 mb-6">
+                    <svg class="w-4 h-4 text-primary-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
                     </svg>
+                    <span class="text-primary-300 text-sm font-medium">Novidade: Dashboard com IA</span>
+                </div>
+                
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
+                    Transforme sua
+                    <span class="bg-gradient-to-r from-primary-400 to-success-400 bg-clip-text text-transparent">
+                        vida financeira
+                    </span>
+                    hoje mesmo
+                </h1>
+                
+                <p class="text-xl text-gray-300 mb-8 max-w-2xl">
+                    Pare de se preocupar com dinheiro. O FinanPy oferece controle total das suas finanças com 
+                    ferramentas inteligentes, insights automatizados e segurança bancária.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                    <a href="{% url 'users:signup' %}" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl inline-flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Começar gratuitamente
+                    </a>
+                    <a href="#recursos" class="bg-dark-700 hover:bg-dark-600 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 border border-dark-600 hover:border-dark-500 inline-flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1a3 3 0 000-6h-1v6zm1 0V9a3 3 0 003 3 3 3 0 003-3v1"></path>
+                        </svg>
+                        Ver demonstração
+                    </a>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row items-center gap-6 text-sm text-gray-400">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Gratuito para sempre
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Setup em 2 minutos
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Dados 100% seguros
+                    </div>
                 </div>
             </div>
+            
+            <!-- Right Column - Visual/Dashboard Preview -->
+            <div class="relative animate-slide-up">
+                <div class="bg-dark-800/60 backdrop-blur-sm rounded-2xl border border-dark-700 overflow-hidden shadow-2xl">
+                    <div class="p-6">
+                        <!-- Mini Dashboard Preview -->
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-dark-700/40 rounded-lg p-4 border border-dark-600">
+                                <p class="text-gray-400 text-xs mb-1">Saldo Total</p>
+                                <p class="text-success-400 font-bold text-lg">R$ 15.240</p>
+                                <p class="text-success-500 text-xs">+12.5%</p>
+                            </div>
+                            <div class="bg-dark-700/40 rounded-lg p-4 border border-dark-600">
+                                <p class="text-gray-400 text-xs mb-1">Economia</p>
+                                <p class="text-warning-400 font-bold text-lg">R$ 3.580</p>
+                                <p class="text-warning-500 text-xs">Meta: 85%</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Mini Chart Placeholder -->
+                        <div class="h-32 bg-gradient-to-r from-primary-600/20 to-success-600/20 rounded-lg flex items-center justify-center border border-dark-600">
+                            <div class="text-center">
+                                <div class="w-8 h-8 bg-primary-500 rounded-full mx-auto mb-2 animate-pulse"></div>
+                                <p class="text-gray-400 text-xs">Gráficos interativos</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Mini Transactions -->
+                        <div class="mt-4 space-y-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-400">Salário</span>
+                                <span class="text-success-400 font-medium">+R$ 5.500</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-400">Supermercado</span>
+                                <span class="text-danger-400 font-medium">-R$ 245</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Floating elements for visual appeal -->
+                <div class="absolute -top-4 -right-4 w-16 h-16 bg-success-500/20 rounded-full blur-xl animate-bounce-gentle"></div>
+                <div class="absolute -bottom-4 -left-4 w-12 h-12 bg-primary-500/20 rounded-full blur-lg animate-bounce-gentle" style="animation-delay: 1s;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="recursos" class="py-20 bg-dark-900/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Tudo que você precisa para
+                <span class="bg-gradient-to-r from-primary-400 to-success-400 bg-clip-text text-transparent">
+                    dominar suas finanças
+                </span>
+            </h2>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                Ferramentas profissionais que transformam a complexidade financeira em decisões simples e inteligentes
+            </p>
         </div>
         
-        <!-- Receitas -->
-        <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700 hover:border-primary-500 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Receitas</p>
-                    <p class="text-2xl font-bold text-primary-400">R$ 8.500,00</p>
-                    <p class="text-primary-500 text-sm font-medium">Este mês</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-xl p-8 border border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-16 h-16 bg-gradient-success rounded-xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
                 </div>
-                <div class="w-12 h-12 bg-gradient-financial rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h3 class="text-xl font-semibold text-white mb-3">Controle Automático de Gastos</h3>
+                <p class="text-gray-400 mb-4">Categorização inteligente e rastreamento em tempo real. Nunca mais perca o controle das suas despesas.</p>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Sincronização automática
+                    </div>
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Alertas inteligentes
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-xl p-8 border border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-16 h-16 bg-gradient-financial rounded-xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Orçamentos Inteligentes</h3>
+                <p class="text-gray-400 mb-4">Crie orçamentos que se adaptam ao seu estilo de vida, com sugestões baseadas em IA e tracking automático.</p>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Previsões precisas
+                    </div>
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Ajustes automáticos
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-xl p-8 border border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-16 h-16 bg-gradient-warning rounded-xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                     </svg>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Despesas -->
-        <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700 hover:border-danger-500 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Despesas</p>
-                    <p class="text-2xl font-bold text-danger-400">R$ 6.750,00</p>
-                    <p class="text-danger-500 text-sm font-medium">Este mês</p>
+                <h3 class="text-xl font-semibold text-white mb-3">Metas e Investimentos</h3>
+                <p class="text-gray-400 mb-4">Planeje seu futuro financeiro com metas inteligentes e acompanhe seu progresso em tempo real.</p>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Metas personalizadas
+                    </div>
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Simulações avançadas
+                    </div>
                 </div>
-                <div class="w-12 h-12 bg-gradient-danger rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-xl p-8 border border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-16 h-16 bg-gradient-danger rounded-xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Economia -->
-        <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700 hover:border-warning-500 transition-all duration-300">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-400 text-sm font-medium">Economia</p>
-                    <p class="text-2xl font-bold text-warning-400">R$ 1.750,00</p>
-                    <p class="text-warning-500 text-sm font-medium">20.6% da renda</p>
+                <h3 class="text-xl font-semibold text-white mb-3">Segurança Bancária</h3>
+                <p class="text-gray-400 mb-4">Proteção de nível bancário com criptografia de ponta e conformidade total com LGPD.</p>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Criptografia AES-256
+                    </div>
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Conformidade LGPD
+                    </div>
                 </div>
-                <div class="w-12 h-12 bg-gradient-warning rounded-lg flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-xl p-8 border border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
                     </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">Relatórios Inteligentes</h3>
+                <p class="text-gray-400 mb-4">Insights automáticos sobre seus hábitos financeiros com relatórios visuais e acionáveis.</p>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Dashboard interativo
+                    </div>
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Exportação em PDF
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-xl p-8 border border-dark-700 hover:border-primary-500/50 transition-all duration-300 hover:transform hover:scale-105">
+                <div class="w-16 h-16 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-3">App Mobile</h3>
+                <p class="text-gray-400 mb-4">Acesse suas finanças de qualquer lugar com nosso app nativo para iOS e Android.</p>
+                <div class="space-y-2">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Sincronização em tempo real
+                    </div>
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Notificações push
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Charts and Recent Transactions -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <!-- Chart Section -->
-        <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700">
-            <h3 class="text-xl font-semibold text-white mb-4">Evolução Mensal</h3>
-            <div class="h-64 bg-dark-900/40 rounded-lg flex items-center justify-center border border-dark-600 border-dashed">
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-gradient-financial rounded-full flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+</section>
+
+<!-- Social Proof/Testimonials Section -->
+<section class="py-20 bg-dark-800/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Mais de 10.000 pessoas já transformaram suas finanças
+            </h2>
+            <p class="text-xl text-gray-300">Veja o que nossos usuários estão dizendo</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Testimonial 1 -->
+            <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700">
+                <div class="flex items-center mb-4">
+                    <div class="flex text-warning-400">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
                         </svg>
                     </div>
-                    <p class="text-gray-400 text-sm">Gráfico será implementado</p>
+                </div>
+                <p class="text-gray-300 mb-4">"Consegui economizar R$ 3.000 no primeiro mês! O FinanPy me mostrou onde eu estava gastando sem perceber. Interface incrível e insights valiosos."</p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-success-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-semibold text-sm">MC</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Marina Costa</p>
+                        <p class="text-gray-400 text-sm">Arquiteta, São Paulo</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Testimonial 2 -->
+            <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700">
+                <div class="flex items-center mb-4">
+                    <div class="flex text-warning-400">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-gray-300 mb-4">"Finalmente entendo para onde vai meu dinheiro! Os relatórios automáticos e as metas personalizadas mudaram completamente minha relação com as finanças."</p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-warning-500 to-danger-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-semibold text-sm">RS</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Roberto Silva</p>
+                        <p class="text-gray-400 text-sm">Engenheiro, Rio de Janeiro</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Testimonial 3 -->
+            <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700">
+                <div class="flex items-center mb-4">
+                    <div class="flex text-warning-400">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="text-gray-300 mb-4">"A facilidade de uso é impressionante. Em 5 minutos já estava com tudo configurado. O app mobile é perfeito para acompanhar os gastos no dia a dia."</p>
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-success-500 to-primary-500 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-semibold text-sm">AL</span>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Ana Luiza</p>
+                        <p class="text-gray-400 text-sm">Médica, Belo Horizonte</p>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Recent Transactions -->
-        <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700">
-            <h3 class="text-xl font-semibold text-white mb-4">Transações Recentes</h3>
-            <div class="space-y-4">
-                <!-- Transaction Item -->
-                <div class="flex items-center justify-between p-3 bg-dark-700/40 rounded-lg border border-dark-600">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-success rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-white font-medium">Salário</p>
-                            <p class="text-gray-400 text-sm">Hoje, 09:30</p>
-                        </div>
-                    </div>
-                    <span class="text-success-400 font-semibold">+R$ 5.500,00</span>
-                </div>
-                
-                <!-- Transaction Item -->
-                <div class="flex items-center justify-between p-3 bg-dark-700/40 rounded-lg border border-dark-600">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-danger rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m-2 0L5 13m0 0l1.5 9.5h11L19 13"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-white font-medium">Supermercado</p>
-                            <p class="text-gray-400 text-sm">Ontem, 14:25</p>
-                        </div>
-                    </div>
-                    <span class="text-danger-400 font-semibold">-R$ 245,80</span>
-                </div>
-                
-                <!-- Transaction Item -->
-                <div class="flex items-center justify-between p-3 bg-dark-700/40 rounded-lg border border-dark-600">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-warning rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-white font-medium">Conta de Luz</p>
-                            <p class="text-gray-400 text-sm">2 dias atrás</p>
-                        </div>
-                    </div>
-                    <span class="text-danger-400 font-semibold">-R$ 156,90</span>
-                </div>
+        <!-- Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 mt-16">
+            <div class="text-center">
+                <div class="text-3xl font-bold text-white mb-2">10.000+</div>
+                <div class="text-gray-400">Usuários ativos</div>
             </div>
-            
-            <!-- View All Button -->
-            <div class="mt-4 pt-4 border-t border-dark-600">
-                <button class="w-full text-primary-400 hover:text-primary-300 font-medium text-sm transition-colors duration-200">
-                    Ver todas as transações
-                </button>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-white mb-2">R$ 2.8M</div>
+                <div class="text-gray-400">Economizados</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-white mb-2">95%</div>
+                <div class="text-gray-400">Satisfação</div>
+            </div>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-white mb-2">24/7</div>
+                <div class="text-gray-400">Suporte</div>
             </div>
         </div>
     </div>
-    
-    <!-- Quick Actions -->
-    <div class="mt-8 bg-dark-800/60 backdrop-blur-sm rounded-xl p-6 border border-dark-700">
-        <h3 class="text-xl font-semibold text-white mb-4">Ações Rápidas</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button class="flex flex-col items-center p-4 bg-dark-700/40 hover:bg-dark-700/60 rounded-lg border border-dark-600 hover:border-primary-500 transition-all duration-200">
-                <div class="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mb-2">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
+</section>
+
+<!-- Pricing Section -->
+<section id="precos" class="py-20 bg-dark-900/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Planos que crescem
+                <span class="bg-gradient-to-r from-primary-400 to-success-400 bg-clip-text text-transparent">
+                    com seu sucesso
+                </span>
+            </h2>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                Comece gratuitamente e escale conforme suas necessidades financeiras evoluem
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            <!-- Free Plan -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-2xl p-8 border border-dark-700 hover:border-gray-600 transition-all duration-300">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-white mb-2">Gratuito</h3>
+                    <p class="text-gray-400 mb-6">Perfeito para começar sua jornada financeira</p>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-white">R$ 0</span>
+                        <span class="text-gray-400">/mês</span>
+                    </div>
+                    <a href="{% url 'users:signup' %}" class="bg-dark-700 hover:bg-dark-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 block">
+                        Começar agora
+                    </a>
                 </div>
-                <span class="text-white text-sm font-medium">Nova Receita</span>
-            </button>
+                
+                <ul class="space-y-4">
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Até 3 contas bancárias
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        500 transações/mês
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        3 orçamentos básicos
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Relatórios mensais
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        App mobile
+                    </li>
+                    <li class="flex items-center text-gray-400">
+                        <svg class="w-5 h-5 text-gray-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Metas financeiras
+                    </li>
+                </ul>
+            </div>
             
-            <button class="flex flex-col items-center p-4 bg-dark-700/40 hover:bg-dark-700/60 rounded-lg border border-dark-600 hover:border-danger-500 transition-all duration-200">
-                <div class="w-12 h-12 bg-gradient-danger rounded-lg flex items-center justify-center mb-2">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                    </svg>
+            <!-- Pro Plan -->
+            <div class="bg-gradient-to-br from-primary-900/20 to-success-900/20 backdrop-blur-sm rounded-2xl p-8 border-2 border-primary-500 relative transform scale-105 hover:scale-110 transition-all duration-300">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span class="bg-gradient-to-r from-primary-600 to-success-600 text-white px-4 py-2 rounded-full text-sm font-medium">
+                        Mais Popular
+                    </span>
                 </div>
-                <span class="text-white text-sm font-medium">Nova Despesa</span>
-            </button>
+                
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
+                    <p class="text-gray-300 mb-6">Para quem leva as finanças a sério</p>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-white">R$ 19</span>
+                        <span class="text-gray-400">/mês</span>
+                    </div>
+                    <a href="{% url 'users:signup' %}" class="bg-gradient-to-r from-primary-600 to-success-600 hover:from-primary-700 hover:to-success-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 block transform hover:scale-105">
+                        Começar teste grátis
+                    </a>
+                </div>
+                
+                <ul class="space-y-4">
+                    <li class="flex items-center text-gray-200">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Contas bancárias ilimitadas
+                    </li>
+                    <li class="flex items-center text-gray-200">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Transações ilimitadas
+                    </li>
+                    <li class="flex items-center text-gray-200">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Orçamentos inteligentes
+                    </li>
+                    <li class="flex items-center text-gray-200">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Metas e investimentos
+                    </li>
+                    <li class="flex items-center text-gray-200">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Relatórios avançados
+                    </li>
+                    <li class="flex items-center text-gray-200">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Suporte prioritário
+                    </li>
+                </ul>
+            </div>
             
-            <button class="flex flex-col items-center p-4 bg-dark-700/40 hover:bg-dark-700/60 rounded-lg border border-dark-600 hover:border-warning-500 transition-all duration-200">
-                <div class="w-12 h-12 bg-gradient-warning rounded-lg flex items-center justify-center mb-2">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
+            <!-- Enterprise Plan -->
+            <div class="bg-dark-800/40 backdrop-blur-sm rounded-2xl p-8 border border-dark-700 hover:border-warning-500 transition-all duration-300">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-white mb-2">Enterprise</h3>
+                    <p class="text-gray-400 mb-6">Para empresas e consultores</p>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold text-white">R$ 99</span>
+                        <span class="text-gray-400">/mês</span>
+                    </div>
+                    <a href="#" class="bg-warning-600 hover:bg-warning-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 block">
+                        Falar com vendas
+                    </a>
                 </div>
-                <span class="text-white text-sm font-medium">Criar Orçamento</span>
-            </button>
-            
-            <button class="flex flex-col items-center p-4 bg-dark-700/40 hover:bg-dark-700/60 rounded-lg border border-dark-600 hover:border-primary-500 transition-all duration-200">
-                <div class="w-12 h-12 bg-gradient-financial rounded-lg flex items-center justify-center mb-2">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                
+                <ul class="space-y-4">
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Múltiplos usuários
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        API personalizada
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Relatórios customizados
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Integração avançada
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Suporte 24/7
+                    </li>
+                    <li class="flex items-center text-gray-300">
+                        <svg class="w-5 h-5 text-success-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Consultoria inclusa
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Additional Info -->
+        <div class="text-center mt-12">
+            <p class="text-gray-400 mb-4">Todos os planos incluem garantia de 30 dias</p>
+            <div class="flex flex-wrap justify-center items-center gap-8 text-sm text-gray-500">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
                     </svg>
+                    Pagamento seguro
                 </div>
-                <span class="text-white text-sm font-medium">Definir Meta</span>
-            </button>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Cancele a qualquer momento
+                </div>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-success-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" clip-rule="evenodd"></path>
+                    </svg>
+                    Suporte em português
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-gradient-to-r from-primary-900/40 to-success-900/40">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
+            Pronto para transformar suas finanças?
+        </h2>
+        <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+            Junte-se a milhares de brasileiros que já descobriram o segredo do controle financeiro inteligente.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a href="{% url 'users:signup' %}" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl inline-flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Criar conta gratuita
+            </a>
+            <a href="{% url 'users:login' %}" class="text-white hover:text-gray-300 px-8 py-4 font-medium text-lg transition-colors duration-300 inline-flex items-center">
+                Já tem conta? Entre aqui
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+        
+        <div class="mt-8 text-sm text-gray-400">
+            <p>Sem cartão de crédito necessário • Configuração em 2 minutos • Suporte em português</p>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Add some interactive behavior
     document.addEventListener('DOMContentLoaded', function() {
-        // Add hover effects and animations
-        const cards = document.querySelectorAll('.hover\\:border-success-500, .hover\\:border-primary-500, .hover\\:border-danger-500, .hover\\:border-warning-500');
-        
-        cards.forEach(card => {
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe feature cards and testimonials for animation
+        document.querySelectorAll('.bg-dark-800\\/40, .bg-dark-800\\/60').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Enhanced hover effects for feature cards
+        document.querySelectorAll('.hover\\:scale-105, .hover\\:scale-110').forEach(card => {
             card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-2px)';
-                this.style.transition = 'all 0.3s ease';
+                this.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
             });
             
             card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '';
             });
         });
-        
-        console.log('FinanPy Dashboard carregado com sucesso!');
-        console.log('TailwindCSS configurado com tema escuro e paleta de cores financeira');
+
+        // Pricing plan selection highlight
+        document.querySelectorAll('[class*="border-2 border-primary-500"]').forEach(plan => {
+            plan.style.animation = 'pulse 2s infinite';
+        });
+
+        // Counter animation for stats
+        function animateCounter(element, target, duration = 2000) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            const timer = setInterval(() => {
+                start += increment;
+                if (start >= target) {
+                    element.textContent = formatNumber(target);
+                    clearInterval(timer);
+                } else {
+                    element.textContent = formatNumber(Math.floor(start));
+                }
+            }, 16);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Animate counters when stats section comes into view
+        const statsSection = document.querySelector('.grid.grid-cols-2.lg\\:grid-cols-4');
+        if (statsSection) {
+            const statsObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Animate the numbers
+                        setTimeout(() => animateCounter(entry.target.children[0].children[0], 10000), 100);
+                        setTimeout(() => animateCounter(entry.target.children[1].children[0], 2800000), 300);
+                        setTimeout(() => animateCounter(entry.target.children[2].children[0], 95), 500);
+                        statsObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            statsObserver.observe(statsSection);
+        }
+
+        // Add pulse animation to CTA buttons
+        const ctaButtons = document.querySelectorAll('a[href*="signup"]');
+        ctaButtons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.animation = 'pulse 0.5s ease-in-out';
+            });
+            
+            button.addEventListener('animationend', function() {
+                this.style.animation = '';
+            });
+        });
+
+        // Form validation enhancement for signup/login
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.style.background = 'linear-gradient(90deg, #0ea5e9, #22c55e)';
+                    submitBtn.innerHTML = '<div class="flex items-center"><svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processando...</div>';
+                }
+            });
+        });
+
+        // Add floating animation to hero visual elements
+        const floatingElements = document.querySelectorAll('.animate-bounce-gentle');
+        floatingElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.5}s`;
+        });
+
+        // Enhanced testimonial interaction
+        const testimonials = document.querySelectorAll('.bg-dark-800\\/60');
+        testimonials.forEach(testimonial => {
+            testimonial.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+                this.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.3)';
+            });
+            
+            testimonial.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+            });
+        });
+
+        console.log('🚀 FinanPy Landing Page carregada com sucesso!');
+        console.log('💳 Sistema de gestão financeira pronto para transformar vidas!');
+        console.log('🔒 Segurança bancária • 🎯 IA integrada • 📱 App nativo');
     });
 </script>
 {% endblock %}

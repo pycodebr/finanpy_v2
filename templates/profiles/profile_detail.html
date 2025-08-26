@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Perfil - FinanPy{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-dark-900 via-dark-800 to-dark-900">
+    <!-- Profile Header -->
+    <div class="bg-dark-800/80 backdrop-blur-sm border-b border-dark-700">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+                <div class="flex items-center space-x-4">
+                    <!-- Profile Avatar -->
+                    <div class="relative">
+                        <div class="w-16 h-16 bg-gradient-financial rounded-full flex items-center justify-center text-2xl font-bold text-white">
+                            {{ profile.first_name|first|default:user.username|first|upper }}
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-dark-800"></div>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">
+                            {{ profile.get_full_name|default:user.username }}
+                        </h1>
+                        <p class="text-gray-400">{{ user.email }}</p>
+                        
+                        <!-- Profile Completion Indicator -->
+                        <div class="flex items-center space-x-2 mt-2">
+                            <div class="w-24 h-2 bg-dark-600 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500" 
+                                     style="width: {{ completion_percentage }}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500">
+                                {{ completion_percentage }}% completo
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                    <a href="{% url 'profiles:edit' %}" class="btn-primary flex items-center space-x-2 justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        <span>Editar Perfil</span>
+                    </a>
+                    <a href="{% url 'users:password_change' %}" class="bg-dark-700 hover:bg-dark-600 text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2 justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span>Alterar Senha</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Profile Information -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Personal Information Card -->
+                <div class="card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-semibold text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                            Informações Pessoais
+                        </h3>
+                        <a href="{% url 'profiles:edit' %}" class="text-primary-400 hover:text-primary-300 text-sm flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Editar
+                        </a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Nome de Usuário</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600">
+                                {{ user.username }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600">
+                                {{ user.email }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Primeiro Nome</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600 {% if not profile.first_name %}text-gray-500 italic{% endif %}">
+                                {{ profile.first_name|default:"Não informado" }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Sobrenome</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600 {% if not profile.last_name %}text-gray-500 italic{% endif %}">
+                                {{ profile.last_name|default:"Não informado" }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Telefone</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600 {% if not profile.phone %}text-gray-500 italic{% endif %}">
+                                {{ profile.phone|default:"Não informado" }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Data de Nascimento</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600 {% if not profile.birth_date %}text-gray-500 italic{% endif %}">
+                                {% if profile.birth_date %}
+                                    {{ profile.birth_date|date:"d/m/Y" }}
+                                    {% if profile_age %}
+                                        <span class="text-gray-400 text-sm ml-2">({{ profile_age }} anos)</span>
+                                    {% endif %}
+                                {% else %}
+                                    Não informado
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if profile.bio %}
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Biografia</label>
+                        <div class="form-input bg-dark-700/50 border-dark-600 min-h-20">
+                            {{ profile.bio }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Account Information Card -->
+                <div class="card">
+                    <h3 class="text-xl font-semibold text-white mb-6 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        Informações da Conta
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Membro desde</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600">
+                                {{ user.date_joined|date:"d/m/Y" }}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Último acesso</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600">
+                                {% if user.last_login %}
+                                    {{ user.last_login|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    Nunca
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Tipo de Conta</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600">
+                                <span class="bg-primary-900/30 text-primary-400 px-2 py-1 rounded-full text-xs">
+                                    {% if user.is_staff %}Administrador{% else %}Usuário{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Status</label>
+                            <div class="form-input bg-dark-700/50 border-dark-600">
+                                <span class="bg-green-900/30 text-green-400 px-2 py-1 rounded-full text-xs">
+                                    {% if user.is_active %}Ativo{% else %}Inativo{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Sidebar -->
+            <div class="space-y-6">
+                <!-- Profile Completion Card -->
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Completude do Perfil
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-300 text-sm">Progresso</span>
+                            <span class="text-white font-medium">{{ completion_percentage }}%</span>
+                        </div>
+                        
+                        <div class="w-full h-3 bg-dark-600 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-primary-500 to-primary-400 transition-all duration-500" 
+                                 style="width: {{ completion_percentage }}%"></div>
+                        </div>
+                        
+                        <div class="text-xs text-gray-400">
+                            {{ completed_fields }} de {{ total_fields }} campos preenchidos
+                        </div>
+                        
+                        {% if completion_percentage < 100 %}
+                        <div class="mt-4 p-3 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+                            <div class="flex items-start space-x-2">
+                                <svg class="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <p class="text-yellow-400 text-xs font-medium">Complete seu perfil</p>
+                                    <p class="text-yellow-200 text-xs mt-1">Adicione mais informações para melhorar sua experiência</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <a href="{% url 'profiles:edit' %}" class="w-full btn-primary text-center block">
+                            Editar Perfil
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Card -->
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Ações Rápidas
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <a href="{% url 'users:dashboard' %}" class="w-full text-left p-3 bg-dark-700/50 hover:bg-dark-700 rounded-lg transition-colors duration-200 flex items-center space-x-3">
+                            <div class="p-2 bg-primary-900/30 rounded-lg">
+                                <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-300 text-sm">Dashboard</span>
+                        </a>
+                        
+                        <a href="{% url 'users:password_change' %}" class="w-full text-left p-3 bg-dark-700/50 hover:bg-dark-700 rounded-lg transition-colors duration-200 flex items-center space-x-3">
+                            <div class="p-2 bg-red-900/30 rounded-lg">
+                                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-gray-300 text-sm">Alterar Senha</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
