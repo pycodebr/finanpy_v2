@@ -162,6 +162,106 @@ input[type="password"].form-input {
     @apply outline-none ring-0;
 }
 
+/* Enhanced button styles for budget app */
+.btn-primary-enhanced {
+    @apply bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+/* Light blue button for login and signup - matches quick transaction button */
+.btn-primary-light {
+    background: linear-gradient(to right, #3B82F6, #2563EB) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 0.75rem !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+}
+
+.btn-primary-light:hover {
+    background: linear-gradient(to right, #2563EB, #1D4ED8) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    transform: translateY(-2px) !important;
+}
+
+.btn-secondary-enhanced {
+    @apply bg-gradient-to-r from-secondary-600 to-secondary-700 hover:from-secondary-700 hover:to-secondary-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+.btn-success-enhanced {
+    @apply bg-gradient-to-r from-success-600 to-success-700 hover:from-success-700 hover:to-success-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+.btn-warning-enhanced {
+    @apply bg-gradient-to-r from-warning-600 to-warning-700 hover:from-warning-700 hover:to-warning-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+.btn-danger-enhanced {
+    @apply bg-gradient-to-r from-danger-600 to-danger-700 hover:from-danger-700 hover:to-danger-800 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+}
+
+/* Budget specific animations */
+.progress-bar {
+    @apply relative overflow-hidden rounded-full;
+    background: linear-gradient(90deg, #374151 0%, #4B5563 100%);
+}
+
+.progress-bar-fill {
+    @apply h-full rounded-full transition-all duration-1000 ease-out;
+    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    transform-origin: left center;
+    animation: progressFill 1.5s ease-out;
+}
+
+.progress-bar-fill.warning {
+    background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%);
+}
+
+.progress-bar-fill.danger {
+    background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);
+}
+
+@keyframes progressFill {
+    from {
+        transform: scaleX(0);
+        opacity: 0.8;
+    }
+    to {
+        transform: scaleX(1);
+        opacity: 1;
+    }
+}
+
+/* Budget card hover effects */
+.budget-card {
+    @apply bg-dark-800/70 backdrop-blur-sm rounded-xl p-6 border border-dark-700 transition-all duration-300 hover:border-primary-500/50 hover:shadow-lg hover:shadow-primary-500/10;
+}
+
+.budget-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Chart container styles */
+.chart-container {
+    @apply bg-dark-800/80 rounded-xl p-6 border border-dark-700 relative overflow-hidden;
+}
+
+.chart-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+    transition: left 2s ease-in-out;
+}
+
+.chart-container:hover::before {
+    left: 100%;
+}
+
 /* Print styles */
 @media print {
     .no-print {

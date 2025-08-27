@@ -41,6 +41,9 @@ urlpatterns = [
     
     # Transactions management URLs
     path('transactions/', include('transactions.urls')),
+    
+    # Budgets management URLs
+    path('budgets/', include('budgets.urls')),
 ]
 
 # Serve static and media files during development

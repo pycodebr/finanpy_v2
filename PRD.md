@@ -496,37 +496,37 @@ erDiagram
   - [X] Botões para editar/excluir
   - [X] Histórico de alterações (se aplicável)
 
-### Sprint 4: Orçamentos (2 semanas)
+### Sprint 4: Orçamentos (2 semanas) - [X]
 
-#### Tarefa 4.1: Modelo de Orçamentos
-- [ ] **4.1.1** Criar modelo Budget
-  - [ ] ForeignKeys para User e Category
-  - [ ] Campos: name, planned_amount, spent_amount, start_date, end_date
-  - [ ] Campo calculado para percentage_used
-- [ ] **4.1.2** Método para cálculo de gastos
-  - [ ] Property no modelo para calcular spent_amount automaticamente
-  - [ ] Agregação de transações por período e categoria
-  - [ ] Cache de valores calculados para performance
+#### Tarefa 4.1: Modelo de Orçamentos - [X]
+- [X] **4.1.1** Criar modelo Budget
+  - [X] ForeignKeys para User e Category
+  - [X] Campos: name, planned_amount, spent_amount, start_date, end_date
+  - [X] Campo calculado para percentage_used
+- [X] **4.1.2** Método para cálculo de gastos
+  - [X] Property no modelo para calcular spent_amount automaticamente
+  - [X] Agregação de transações por período e categoria
+  - [X] Cache de valores calculados para performance
 
-#### Tarefa 4.2: Views de Orçamentos  
-- [ ] **4.2.1** BudgetListView com progresso
-  - [ ] Cards mostrando progresso visual (barras)
-  - [ ] Cores diferenciadas por status (verde/amarelo/vermelho)
-  - [ ] Filtro por período
-- [ ] **4.2.2** BudgetCreateView e UpdateView
-  - [ ] Formulário com seleção de categorias
-  - [ ] Validação de datas e valores
-  - [ ] Preview de orçamento baseado em histórico
+#### Tarefa 4.2: Views de Orçamentos - [X]
+- [X] **4.2.1** BudgetListView com progresso
+  - [X] Cards mostrando progresso visual (barras)
+  - [X] Cores diferenciadas por status (verde/amarelo/vermelho)
+  - [X] Filtro por período
+- [X] **4.2.2** BudgetCreateView e UpdateView
+  - [X] Formulário com seleção de categorias
+  - [X] Validação de datas e valores
+  - [X] Preview de orçamento baseado em histórico
 
-#### Tarefa 4.3: Templates de Orçamentos
-- [ ] **4.3.1** Dashboard de orçamentos
-  - [ ] Visão geral com todos os orçamentos ativos
-  - [ ] Gráficos de progresso
-  - [ ] Alertas para orçamentos próximos do limite
-- [ ] **4.3.2** Formulários responsivos
-  - [ ] Criação/edição com UX otimizada
-  - [ ] Validação client-side
-  - [ ] Feedback visual imediato
+#### Tarefa 4.3: Templates de Orçamentos - [X]
+- [X] **4.3.1** Dashboard de orçamentos
+  - [X] Visão geral com todos os orçamentos ativos
+  - [X] Gráficos de progresso
+  - [X] Alertas para orçamentos próximos do limite
+- [X] **4.3.2** Formulários responsivos
+  - [X] Criação/edição com UX otimizada
+  - [X] Validação client-side
+  - [X] Feedback visual imediato
 
 ### Sprint 5: Metas Financeiras (2 semanas)
 

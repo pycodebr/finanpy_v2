@@ -1,0 +1,552 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Orçamentos - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Enhanced budget card animations */
+    .budget-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1rem;
+        backdrop-filter: blur(12px);
+        background: rgba(31, 41, 55, 0.7);
+        border: 1px solid rgba(55, 65, 81, 0.4);
+    }
+    
+    .budget-card:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        border-color: rgba(59, 130, 246, 0.4);
+        background: rgba(31, 41, 55, 0.9);
+    }
+    
+    /* Progress bar animations */
+    .progress-bar {
+        position: relative;
+        overflow: hidden;
+        border-radius: 9999px;
+        background: linear-gradient(90deg, #374151 0%, #4B5563 100%);
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 9999px;
+        transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: left center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .progress-bar-fill.success {
+        background: linear-gradient(90deg, #10B981 0%, #059669 50%, #047857 100%);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+    
+    .progress-bar-fill.warning {
+        background: linear-gradient(90deg, #F59E0B 0%, #D97706 50%, #B45309 100%);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+    
+    .progress-bar-fill.danger {
+        background: linear-gradient(90deg, #EF4444 0%, #DC2626 50%, #B91C1C 100%);
+        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    }
+    
+    .progress-bar-fill::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+    
+    /* Status badge animations */
+    .status-badge {
+        position: relative;
+        overflow: hidden;
+        border-radius: 9999px;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        transition: all 0.3s ease;
+    }
+    
+    .status-badge:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Quick action buttons */
+    .quick-action-btn {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 0.75rem;
+        backdrop-filter: blur(8px);
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Alert animation */
+    .alert-pulse {
+        animation: alertPulse 2s infinite;
+    }
+    
+    @keyframes alertPulse {
+        0%, 100% { 
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% { 
+            box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+        }
+    }
+    
+    /* Filter card improvements */
+    .filter-card {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Mobile responsive improvements */
+    @media (max-width: 768px) {
+        .budget-card:hover {
+            transform: translateY(-2px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Enhanced Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">
+                        <span class="text-3xl mr-3 animate-bounce-gentle">📊</span>
+                        Orçamentos
+                    </h1>
+                    <p class="text-lg text-gray-300">
+                        Controle e monitore seus gastos com orçamentos inteligentes
+                    </p>
+                </div>
+                
+                <!-- Enhanced Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="{% url 'budgets:create' %}" 
+                       class="btn-primary-enhanced flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Novo Orçamento
+                    </a>
+                    <button onclick="alert('Funcionalidade de Analytics será implementada em versão futura!');" 
+                            class="btn-secondary-enhanced flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Analytics
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Statistics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="budget-card group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-financial rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-xl">📋</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400 mb-1">Total de Orçamentos</p>
+                            <p class="text-2xl font-bold text-white">{{ stats.total_budgets }}</p>
+                        </div>
+                    </div>
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="budget-card group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-success rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-xl">✅</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400 mb-1">Orçamentos Ativos</p>
+                            <p class="text-2xl font-bold text-success-400">{{ stats.active_budgets }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="budget-card group cursor-pointer {% if stats.over_budget > 0 %}alert-pulse{% endif %}">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-danger rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-xl">⚠️</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400 mb-1">Acima do Orçamento</p>
+                            <p class="text-2xl font-bold text-danger-400">{{ stats.over_budget }}</p>
+                        </div>
+                    </div>
+                    {% if stats.over_budget > 0 %}
+                    <div class="text-danger-400 animate-pulse">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="budget-card group cursor-pointer">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-warning rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                            <span class="text-xl">💰</span>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400 mb-1">Orçamento Total</p>
+                            <p class="text-2xl font-bold text-warning-400">{{ stats.total_planned|currency }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Filters -->
+        <div class="filter-card rounded-xl p-6 mb-8">
+            <form method="get" class="space-y-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                        </svg>
+                        Filtros Avançados
+                    </h3>
+                    {% if has_filters %}
+                    <a href="{% url 'budgets:list' %}" class="text-sm text-red-400 hover:text-red-300 transition-colors">
+                        Limpar todos os filtros
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Categoria</label>
+                        {{ filter_form.category }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Status</label>
+                        {{ filter_form.status }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Período Inicial</label>
+                        {{ filter_form.start_date }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Buscar</label>
+                        {{ filter_form.search }}
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" class="btn-primary-enhanced">
+                        <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        Aplicar Filtros
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Enhanced Budgets List -->
+        {% if budgets %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {% for budget in budgets %}
+            <div class="budget-card group relative overflow-hidden">
+                <!-- Budget Header -->
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 shadow-md" 
+                             style="background: linear-gradient(135deg, {{ budget.category.color }}30, {{ budget.category.color }}60);">
+                            <span class="text-xl">{{ budget.category.icon }}</span>
+                        </div>
+                        <div>
+                            <a href="{% url 'budgets:detail' budget.pk %}" 
+                               class="text-white font-bold text-lg hover:text-blue-400 transition-colors block">
+                                {{ budget.name }}
+                            </a>
+                            <div class="flex items-center text-sm text-gray-400">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
+                                      style="background-color: {{ budget.category.color }}20; color: {{ budget.category.color }}">
+                                    {{ budget.category.name }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Badge -->
+                    <div class="status-badge">
+                        {% if budget.is_over_budget %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-danger-900/30 text-danger-400 border border-danger-800/50">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            Excedido
+                        </span>
+                        {% elif budget.progress_percentage >= 90 %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-warning-900/30 text-warning-400 border border-warning-800/50">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            Atenção
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success-900/30 text-success-400 border border-success-800/50">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Saudável
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Budget Amount Info -->
+                <div class="mb-4">
+                    <div class="flex items-baseline justify-between mb-2">
+                        <span class="text-2xl font-bold text-white">{{ budget.spent|currency }}</span>
+                        <span class="text-sm text-gray-400">de {{ budget.planned_amount|currency }}</span>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress-bar h-4 mb-2">
+                        <div class="progress-bar-fill {% if budget.is_over_budget %}danger{% elif budget.progress_percentage >= 90 %}warning{% else %}success{% endif %}" 
+                             style="width: {% if budget.progress_percentage > 100 %}100{% else %}{{ budget.progress_percentage }}{% endif %}%">
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between text-sm">
+                        <span class="{% if budget.is_over_budget %}text-danger-400{% elif budget.progress_percentage >= 90 %}text-warning-400{% else %}text-success-400{% endif %} font-medium">
+                            {{ budget.progress_percentage|floatformat:1 }}% usado
+                        </span>
+                        <span class="text-gray-400">
+                            Restante: 
+                            {% if budget.remaining >= 0 %}
+                                <span class="text-success-400">{{ budget.remaining|currency }}</span>
+                            {% else %}
+                                <span class="text-danger-400">{{ budget.remaining|currency }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Period Info -->
+                <div class="mb-4 p-3 bg-dark-900/40 rounded-lg border border-dark-700">
+                    <div class="flex items-center text-sm text-gray-300">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>{{ budget.start_date|date:"d/m/Y" }} - {{ budget.end_date|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="text-xs text-gray-400 mt-1 ml-6">
+                        {{ budget.days_remaining }} dias restantes
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-2">
+                    <a href="{% url 'budgets:detail' budget.pk %}" 
+                       class="flex-1 quick-action-btn bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 py-2 px-3 rounded-lg transition-all duration-200 text-center text-sm font-medium">
+                        <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Ver Detalhes
+                    </a>
+                    
+                    <a href="{% url 'budgets:update' budget.pk %}" 
+                       class="quick-action-btn bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 hover:text-yellow-300 p-2 rounded-lg transition-all duration-200"
+                       title="Editar orçamento">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </a>
+                    
+                    <a href="{% url 'budgets:delete' budget.pk %}" 
+                       class="quick-action-btn bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 p-2 rounded-lg transition-all duration-200"
+                       title="Excluir orçamento"
+                       onclick="return confirm('Tem certeza que deseja excluir este orçamento?')">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        <!-- Enhanced Empty State -->
+        <div class="budget-card text-center py-16">
+            <div class="w-32 h-32 bg-gradient-to-br from-dark-700/50 to-dark-800/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-6xl text-gray-500 animate-pulse">📊</span>
+            </div>
+            <h3 class="text-2xl font-semibold text-gray-300 mb-3">Nenhum orçamento encontrado</h3>
+            <p class="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
+                {% if has_filters %}
+                    Nenhum orçamento corresponde aos filtros atuais. Tente ajustar os critérios de busca ou limpar os filtros.
+                {% else %}
+                    Comece criando seu primeiro orçamento para ter controle total de suas despesas por categoria.
+                {% endif %}
+            </p>
+            {% if not has_filters %}
+            <a href="{% url 'budgets:create' %}" 
+               class="btn-primary-enhanced inline-flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Criar Primeiro Orçamento
+            </a>
+            {% else %}
+            <a href="{% url 'budgets:list' %}" 
+               class="btn-secondary-enhanced inline-flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Limpar todos os filtros
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Enhanced Pagination -->
+        {% if is_paginated %}
+        <div class="mt-8 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if request.GET %}{% for field, value in request.GET.items %}{% if value and field != 'page' %}{{ field }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ page_obj.previous_page_number }}" 
+                       class="quick-action-btn px-4 py-2 text-sm text-gray-400 hover:text-white bg-dark-800/80 hover:bg-dark-700/80 rounded-lg transition-all duration-300 border border-dark-600 hover:border-dark-500">
+                        <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Anterior
+                    </a>
+                {% endif %}
+                
+                <span class="px-4 py-2 text-sm text-gray-300 bg-dark-800/60 rounded-lg border border-dark-600">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?{% if request.GET %}{% for field, value in request.GET.items %}{% if value and field != 'page' %}{{ field }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ page_obj.next_page_number }}" 
+                       class="quick-action-btn px-4 py-2 text-sm text-gray-400 hover:text-white bg-dark-800/80 hover:bg-dark-700/80 rounded-lg transition-all duration-300 border border-dark-600 hover:border-dark-500">
+                        Próxima
+                        <svg class="w-4 h-4 ml-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit filter form when selections change
+    const filterSelects = document.querySelectorAll('form[method="get"] select, form[method="get"] input[type="date"]');
+    filterSelects.forEach(input => {
+        input.addEventListener('change', function() {
+            const submitBtn = this.form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.classList.add('loading');
+            }
+            setTimeout(() => {
+                this.form.submit();
+            }, 300);
+        });
+    });
+    
+    // Handle search input with debounce
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (this.value.length >= 3 || this.value.length === 0) {
+                    const submitBtn = this.form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.classList.add('loading');
+                    }
+                    this.form.submit();
+                }
+            }, 800);
+        });
+    }
+    
+    // Enhanced progress bar animation
+    const progressBars = document.querySelectorAll('.progress-bar-fill');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 500);
+    });
+    
+    // Add hover effects for budget cards
+    const budgetCards = document.querySelectorAll('.budget-card');
+    budgetCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Alert for over-budget items
+    const overBudgetAlerts = document.querySelectorAll('.alert-pulse');
+    if (overBudgetAlerts.length > 0) {
+        // Show toast notification for over-budget items
+        if (typeof toastManager !== 'undefined') {
+            toastManager.warning(`Atenção! Você possui ${overBudgetAlerts.length} orçamento(s) excedido(s).`, 8000);
+        }
+    }
+});
+</script>
+{% endblock %}

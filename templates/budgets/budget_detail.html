@@ -1,0 +1,640 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}{{ budget.name }} - Orçamento - FinanPy{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    /* Enhanced detail page animations */
+    .detail-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1rem;
+        backdrop-filter: blur(12px);
+        background: rgba(31, 41, 55, 0.7);
+        border: 1px solid rgba(55, 65, 81, 0.4);
+    }
+    
+    .detail-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        border-color: rgba(59, 130, 246, 0.3);
+        background: rgba(31, 41, 55, 0.85);
+    }
+    
+    /* Progress circle animation */
+    .progress-circle {
+        transform: rotate(-90deg);
+        transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .progress-circle-bg {
+        stroke: #374151;
+        stroke-width: 8;
+        fill: transparent;
+    }
+    
+    .progress-circle-fill {
+        stroke-width: 8;
+        fill: transparent;
+        stroke-linecap: round;
+        transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: progressDraw 2s ease-out;
+    }
+    
+    .progress-circle-fill.success {
+        stroke: url(#successGradient);
+    }
+    
+    .progress-circle-fill.warning {
+        stroke: url(#warningGradient);
+    }
+    
+    .progress-circle-fill.danger {
+        stroke: url(#dangerGradient);
+    }
+    
+    @keyframes progressDraw {
+        from {
+            stroke-dasharray: 0, 251;
+        }
+        to {
+            stroke-dasharray: var(--progress), 251;
+        }
+    }
+    
+    /* Transaction row animations */
+    .transaction-row {
+        transition: all 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+    
+    .transaction-row:hover {
+        background-color: rgba(59, 130, 246, 0.1);
+        border-left-color: #3B82F6;
+        transform: translateX(4px);
+    }
+    
+    /* Chart container improvements */
+    .chart-container {
+        background: rgba(30, 41, 59, 0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chart-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+        transition: left 2s ease-in-out;
+    }
+    
+    .chart-container:hover::before {
+        left: 100%;
+    }
+    
+    /* Status indicator with pulse */
+    .status-pulse {
+        animation: statusPulse 2s infinite;
+    }
+    
+    @keyframes statusPulse {
+        0%, 100% { 
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% { 
+            box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+        }
+    }
+    
+    /* Enhanced metric cards */
+    .metric-card {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(51, 65, 85, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Period timeline */
+    .timeline-dot {
+        transition: all 0.3s ease;
+    }
+    
+    .timeline-dot.active {
+        animation: timelinePulse 2s infinite;
+    }
+    
+    @keyframes timelinePulse {
+        0%, 100% { 
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+        }
+        50% { 
+            box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Enhanced Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex items-center">
+                    <a href="{% url 'budgets:list' %}" 
+                       class="mr-4 p-2 bg-dark-800/60 hover:bg-dark-700/60 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 text-gray-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                    </a>
+                    <div>
+                        <h1 class="text-4xl font-bold text-white mb-2 flex items-center">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center mr-4 shadow-md" 
+                                 style="background: linear-gradient(135deg, {{ budget.category.color }}30, {{ budget.category.color }}60);">
+                                <span class="text-2xl">{{ budget.category.icon }}</span>
+                            </div>
+                            {{ budget.name }}
+                        </h1>
+                        <p class="text-lg text-gray-300 ml-16">
+                            Orçamento para {{ budget.category.name }} • {{ budget.start_date|date:"M Y" }}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Enhanced Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="{% url 'budgets:update' budget.pk %}" 
+                       class="btn-warning-enhanced flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Editar
+                    </a>
+                    <a href="{% url 'budgets:delete' budget.pk %}" 
+                       class="btn-danger-enhanced flex items-center justify-center"
+                       onclick="return confirm('Tem certeza que deseja excluir este orçamento?')">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Excluir
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Overview Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Main Progress Card -->
+            <div class="lg:col-span-2 detail-card p-8">
+                <div class="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+                    <!-- Progress Circle -->
+                    <div class="relative flex-shrink-0">
+                        <svg width="200" height="200" class="progress-circle">
+                            <!-- Gradient Definitions -->
+                            <defs>
+                                <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#10B981"/>
+                                    <stop offset="100%" stop-color="#059669"/>
+                                </linearGradient>
+                                <linearGradient id="warningGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#F59E0B"/>
+                                    <stop offset="100%" stop-color="#D97706"/>
+                                </linearGradient>
+                                <linearGradient id="dangerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#EF4444"/>
+                                    <stop offset="100%" stop-color="#DC2626"/>
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Background Circle -->
+                            <circle cx="100" cy="100" r="80" class="progress-circle-bg"></circle>
+                            
+                            <!-- Progress Circle -->
+                            <circle cx="100" cy="100" r="80" 
+                                    class="progress-circle-fill {% if budget.is_over_budget %}danger{% elif budget.progress_percentage >= 90 %}warning{% else %}success{% endif %}"
+                                    style="--progress: {% if budget.progress_percentage > 100 %}251{% else %}{{ budget.progress_percentage|floatformat:0|add:0|mul:2.51 }}{% endif %}; stroke-dasharray: {% if budget.progress_percentage > 100 %}251{% else %}{{ budget.progress_percentage|floatformat:0|add:0|mul:2.51 }}{% endif %}, 251;">
+                            </circle>
+                        </svg>
+                        
+                        <!-- Center Content -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <div class="text-3xl font-bold text-white mb-1">{{ budget.progress_percentage|floatformat:1 }}%</div>
+                            <div class="text-sm text-gray-400">usado</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Details -->
+                    <div class="flex-1 space-y-6 text-center lg:text-left">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white mb-4">Status do Orçamento</h3>
+                            <div class="inline-flex items-center px-4 py-2 rounded-full text-lg font-semibold {% if budget.is_over_budget %}bg-danger-900/30 text-danger-400 border-2 border-danger-800/50 status-pulse{% elif budget.progress_percentage >= 90 %}bg-warning-900/30 text-warning-400 border-2 border-warning-800/50{% else %}bg-success-900/30 text-success-400 border-2 border-success-800/50{% endif %}">
+                                {% if budget.is_over_budget %}
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    Orçamento Excedido
+                                {% elif budget.progress_percentage >= 90 %}
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    Atenção - Próximo do Limite
+                                {% else %}
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Orçamento Saudável
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Amount Details -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between lg:justify-start lg:flex-col">
+                                <div class="lg:mb-2">
+                                    <div class="text-sm text-gray-400 mb-1">Gasto Atual</div>
+                                    <div class="text-3xl font-bold {% if budget.is_over_budget %}text-danger-400{% elif budget.progress_percentage >= 90 %}text-warning-400{% else %}text-success-400{% endif %}">
+                                        {{ budget.spent|currency }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-400 mb-1">Orçamento Planejado</div>
+                                    <div class="text-2xl font-semibold text-gray-300">{{ budget.planned_amount|currency }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-dark-700 pt-4">
+                                <div class="text-sm text-gray-400 mb-1">
+                                    {% if budget.remaining >= 0 %}Valor Restante{% else %}Valor Excedente{% endif %}
+                                </div>
+                                <div class="text-2xl font-bold {% if budget.remaining >= 0 %}text-success-400{% else %}text-danger-400{% endif %}">
+                                    {% if budget.remaining >= 0 %}{{ budget.remaining|currency }}{% else %}{{ budget.remaining|currency }}{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Side Info Card -->
+            <div class="detail-card p-6">
+                <h3 class="text-lg font-semibold text-white mb-6 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Informações do Período
+                </h3>
+                
+                <div class="space-y-6">
+                    <!-- Timeline -->
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="timeline-dot w-4 h-4 bg-primary-600 rounded-full"></div>
+                            <div class="timeline-dot w-4 h-4 {% if budget.is_active %}bg-primary-600 active{% else %}bg-gray-600{% endif %} rounded-full"></div>
+                            <div class="timeline-dot w-4 h-4 bg-gray-600 rounded-full"></div>
+                        </div>
+                        <div class="absolute top-2 left-2 right-2 h-0.5 bg-gradient-to-r from-primary-600 via-primary-600 to-gray-600"></div>
+                        
+                        <div class="flex justify-between text-xs text-gray-400 mt-2">
+                            <span>Início</span>
+                            <span>Atual</span>
+                            <span>Fim</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Dates -->
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-sm text-gray-400 mb-1">Data de Início</div>
+                            <div class="text-white font-medium">{{ budget.start_date|date:"d/m/Y" }}</div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm text-gray-400 mb-1">Data de Término</div>
+                            <div class="text-white font-medium">{{ budget.end_date|date:"d/m/Y" }}</div>
+                        </div>
+                        
+                        <div class="border-t border-dark-700 pt-4">
+                            <div class="text-sm text-gray-400 mb-1">Tempo Restante</div>
+                            <div class="text-primary-400 font-semibold">
+                                {% if budget.days_remaining > 0 %}
+                                    {{ budget.days_remaining }} dia{{ budget.days_remaining|pluralize }}
+                                {% else %}
+                                    Orçamento expirado
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="border-t border-dark-700 pt-4">
+                        <div class="text-sm text-gray-400 mb-3">Ações Rápidas</div>
+                        <div class="space-y-2">
+                            <a href="{% url 'transactions:create' %}?category={{ budget.category.pk }}" 
+                               class="block w-full bg-primary-600/20 hover:bg-primary-600/30 text-primary-400 hover:text-primary-300 py-2 px-3 rounded-lg transition-all duration-200 text-sm font-medium text-center">
+                                + Nova Transação
+                            </a>
+                            <a href="{% url 'transactions:list' %}?category={{ budget.category.pk }}" 
+                               class="block w-full bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300 py-2 px-3 rounded-lg transition-all duration-200 text-sm font-medium text-center">
+                                Ver Todas Transações
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Spending Trend Chart -->
+            <div class="chart-container rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-white mb-6 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Evolução dos Gastos
+                </h3>
+                <div class="relative h-64">
+                    <canvas id="spendingTrendChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Daily Average Chart -->
+            <div class="chart-container rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-white mb-6 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                    Média Diária
+                </h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-card rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-primary-400">{{ budget.daily_average|currency }}</div>
+                            <div class="text-sm text-gray-400 mt-1">Média Atual</div>
+                        </div>
+                        <div class="metric-card rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-gray-300">{{ budget.daily_budget|currency }}</div>
+                            <div class="text-sm text-gray-400 mt-1">Orçamento Diário</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar for Daily Budget -->
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-400 mb-2">
+                            <span>Progresso Diário</span>
+                            <span>{{ budget.daily_progress|floatformat:1 }}%</span>
+                        </div>
+                        <div class="progress-bar h-3">
+                            <div class="progress-bar-fill {% if budget.daily_progress > 100 %}danger{% elif budget.daily_progress >= 90 %}warning{% else %}success{% endif %}" 
+                                 style="width: {% if budget.daily_progress > 100 %}100{% else %}{{ budget.daily_progress }}{% endif %}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Transactions -->
+        <div class="detail-card">
+            <div class="bg-dark-900/60 px-6 py-4 border-b border-dark-700 rounded-t-xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Transações Recentes
+                    </h3>
+                    <a href="{% url 'transactions:list' %}?category={{ budget.category.pk }}" 
+                       class="text-primary-400 hover:text-primary-300 text-sm font-medium">
+                        Ver todas →
+                    </a>
+                </div>
+            </div>
+            
+            {% if recent_transactions %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-dark-900/40">
+                        <tr class="text-left">
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Descrição</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Conta</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider text-right">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dark-700">
+                        {% for transaction in recent_transactions %}
+                        <tr class="transaction-row hover:bg-dark-700/30 transition-all duration-200">
+                            <td class="px-6 py-4">
+                                <div class="text-white font-medium text-sm">
+                                    {{ transaction.transaction_date|date:"d/m" }}
+                                </div>
+                                <div class="text-xs text-gray-400">
+                                    {{ transaction.transaction_date|date:"l"|slice:":3" }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="{% url 'transactions:detail' transaction.pk %}" 
+                                   class="text-white hover:text-blue-400 transition-colors font-medium">
+                                    {{ transaction.description }}
+                                </a>
+                                {% if transaction.notes %}
+                                <div class="text-xs text-gray-400 mt-1">
+                                    {{ transaction.notes|truncatechars:30 }}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-gray-300 text-sm">{{ transaction.account.name }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="inline-block px-3 py-1 rounded-full font-semibold text-sm bg-danger-900/30 text-danger-400">
+                                    -{{ transaction.amount|currency }}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="w-16 h-16 bg-dark-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl text-gray-500">💸</span>
+                </div>
+                <h4 class="text-lg font-medium text-gray-300 mb-2">Nenhuma transação encontrada</h4>
+                <p class="text-gray-500 mb-4">Não há transações nesta categoria para o período do orçamento.</p>
+                <a href="{% url 'transactions:create' %}?category={{ budget.category.pk }}" 
+                   class="btn-primary-enhanced inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Adicionar Transação
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced progress circle animation
+    const progressCircle = document.querySelector('.progress-circle-fill');
+    if (progressCircle) {
+        const progress = {{ budget.progress_percentage|default:0 }};
+        const circumference = 2 * Math.PI * 80;
+        const progressValue = Math.min(progress, 100) / 100 * circumference;
+        
+        progressCircle.style.strokeDasharray = `0, ${circumference}`;
+        
+        setTimeout(() => {
+            progressCircle.style.strokeDasharray = `${progressValue}, ${circumference}`;
+        }, 500);
+    }
+    
+    // Spending Trend Chart
+    const spendingCtx = document.getElementById('spendingTrendChart');
+    if (spendingCtx && typeof Chart !== 'undefined') {
+        const spendingData = {{ chart_data.spending_trend|default:"[]"|safe }};
+        
+        new Chart(spendingCtx, {
+            type: 'line',
+            data: {
+                labels: spendingData.labels || [],
+                datasets: [{
+                    label: 'Gastos Acumulados',
+                    data: spendingData.values || [],
+                    borderColor: '{% if budget.is_over_budget %}#EF4444{% elif budget.progress_percentage >= 90 %}#F59E0B{% else %}#10B981{% endif %}',
+                    backgroundColor: '{% if budget.is_over_budget %}rgba(239, 68, 68, 0.1){% elif budget.progress_percentage >= 90 %}rgba(245, 158, 11, 0.1){% else %}rgba(16, 185, 129, 0.1){% endif %}',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#FFFFFF',
+                    pointBorderWidth: 3
+                }, {
+                    label: 'Orçamento Planejado',
+                    data: Array(spendingData.labels?.length || 0).fill({{ budget.planned_amount }}),
+                    borderColor: '#6B7280',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    tension: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: '#E5E7EB',
+                            font: {
+                                family: 'Inter, sans-serif',
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#374151',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#9CA3AF',
+                            font: {
+                                family: 'Inter, sans-serif'
+                            }
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#374151',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#9CA3AF',
+                            font: {
+                                family: 'Inter, sans-serif'
+                            },
+                            callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR');
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                elements: {
+                    point: {
+                        hoverBackgroundColor: '#FFFFFF',
+                        hoverBorderWidth: 3
+                    }
+                }
+            }
+        });
+    }
+    
+    // Enhanced hover effects for metric cards
+    const metricCards = document.querySelectorAll('.metric-card');
+    metricCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px) scale(1.02)';
+            this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+            this.style.boxShadow = '';
+        });
+    });
+    
+    // Alert for over-budget status
+    {% if budget.is_over_budget %}
+    if (typeof toastManager !== 'undefined') {
+        toastManager.error('Atenção! Este orçamento foi excedido em {{ budget.remaining|currency }}.', 10000);
+    }
+    {% elif budget.progress_percentage >= 90 %}
+    if (typeof toastManager !== 'undefined') {
+        toastManager.warning('Atenção! Você está próximo do limite do orçamento ({{ budget.progress_percentage|floatformat:1 }}% usado).', 8000);
+    }
+    {% endif %}
+    
+    // Enhanced animation for progress bars
+    const progressBars = document.querySelectorAll('.progress-bar-fill');
+    progressBars.forEach(bar => {
+        const width = bar.style.width;
+        bar.style.width = '0%';
+        
+        setTimeout(() => {
+            bar.style.width = width;
+        }, 1000);
+    });
+});
+</script>
+{% endblock %}

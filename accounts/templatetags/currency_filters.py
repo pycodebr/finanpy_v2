@@ -36,6 +36,27 @@ def currency_format(value, currency='BRL'):
         return "R$ 0,00"
 
 
+@register.filter
+def currency(value):
+    """
+    Alias for currency_format with BRL default.
+    Usage: {{ value|currency }}
+    """
+    return currency_format(value, 'BRL')
+
+
+@register.filter
+def mul(value, multiplier):
+    """
+    Multiply a value by a multiplier.
+    Usage: {{ value|mul:2.5 }}
+    """
+    try:
+        return float(value) * float(multiplier)
+    except (ValueError, TypeError):
+        return 0
+
+
 @register.filter  
 def date_format_br(value):
     """

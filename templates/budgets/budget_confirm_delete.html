@@ -1,0 +1,523 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Excluir {{ budget.name }} - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Enhanced delete confirmation animations */
+    .delete-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1rem;
+        backdrop-filter: blur(12px);
+        background: rgba(31, 41, 55, 0.7);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+    }
+    
+    .delete-card:hover {
+        border-color: rgba(239, 68, 68, 0.5);
+        background: rgba(31, 41, 55, 0.85);
+        box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Warning animation */
+    .warning-icon {
+        animation: warningPulse 2s infinite;
+    }
+    
+    @keyframes warningPulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+        }
+    }
+    
+    /* Budget info display */
+    .budget-info {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(51, 65, 85, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .budget-info:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+        transform: translateY(-1px);
+    }
+    
+    /* Impact analysis styling */
+    .impact-item {
+        background: rgba(239, 68, 68, 0.1);
+        border-left: 4px solid #EF4444;
+        transition: all 0.3s ease;
+    }
+    
+    .impact-item:hover {
+        background: rgba(239, 68, 68, 0.15);
+        transform: translateX(4px);
+    }
+    
+    /* Enhanced button styling */
+    .btn-delete-confirm {
+        background: linear-gradient(135deg, #EF4444 0%, #DC2626 50%, #B91C1C 100%);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-delete-confirm:hover {
+        background: linear-gradient(135deg, #DC2626 0%, #B91C1C 50%, #991B1B 100%);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .btn-delete-confirm:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+    
+    /* Progress bar in summary */
+    .progress-preview {
+        background: linear-gradient(90deg, #374151 0%, #4B5563 100%);
+        overflow: hidden;
+        border-radius: 9999px;
+    }
+    
+    .progress-preview-fill {
+        height: 100%;
+        border-radius: 9999px;
+        transition: all 0.5s ease;
+    }
+    
+    .progress-preview-fill.danger {
+        background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);
+    }
+    
+    .progress-preview-fill.warning {
+        background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%);
+    }
+    
+    .progress-preview-fill.success {
+        background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    }
+    
+    /* Fade in animation */
+    .fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .delete-card {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Enhanced Page Header -->
+        <div class="mb-8 fade-in">
+            <div class="flex items-center mb-6">
+                <a href="{% url 'budgets:detail' budget.pk %}" 
+                   class="mr-4 p-2 bg-dark-800/60 hover:bg-dark-700/60 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-gray-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2 flex items-center">
+                        <div class="warning-icon w-12 h-12 bg-gradient-to-br from-danger-500 to-danger-600 rounded-xl flex items-center justify-center mr-4 shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        Excluir Orçamento
+                    </h1>
+                    <p class="text-lg text-gray-300 ml-16">
+                        Confirme a exclusão do orçamento "{{ budget.name }}"
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warning Alert -->
+        <div class="mb-8 fade-in" style="animation-delay: 0.1s;">
+            <div class="bg-danger-900/20 border border-danger-800/50 rounded-xl p-6">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="w-8 h-8 text-danger-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.664-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-danger-400 mb-2">⚠️ Ação Irreversível</h3>
+                        <p class="text-danger-200 leading-relaxed">
+                            Esta ação não pode ser desfeita. O orçamento e todos os seus dados históricos serão permanentemente removidos do sistema.
+                            <br><br>
+                            <strong class="text-danger-100">Certifique-se de que deseja continuar antes de confirmar a exclusão.</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Budget Information Card -->
+            <div class="budget-info rounded-xl p-6 fade-in" style="animation-delay: 0.2s;">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Resumo do Orçamento
+                </h3>
+                
+                <!-- Budget Header -->
+                <div class="flex items-center mb-6">
+                    <div class="w-14 h-14 rounded-xl flex items-center justify-center mr-4 shadow-md" 
+                         style="background: linear-gradient(135deg, {{ budget.category.color }}30, {{ budget.category.color }}60);">
+                        <span class="text-2xl">{{ budget.category.icon }}</span>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-bold text-white">{{ budget.name }}</h4>
+                        <div class="flex items-center text-sm text-gray-400 mt-1">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
+                                  style="background-color: {{ budget.category.color }}20; color: {{ budget.category.color }}">
+                                {{ budget.category.name }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Budget Details -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center py-2 border-b border-dark-700/50">
+                        <span class="text-gray-400">Valor Planejado:</span>
+                        <span class="text-white font-semibold">{{ budget.planned_amount|currency }}</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-2 border-b border-dark-700/50">
+                        <span class="text-gray-400">Valor Gasto:</span>
+                        <span class="{% if budget.is_over_budget %}text-danger-400{% else %}text-success-400{% endif %} font-semibold">
+                            {{ budget.spent|currency }}
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-2 border-b border-dark-700/50">
+                        <span class="text-gray-400">Período:</span>
+                        <span class="text-white font-medium">
+                            {{ budget.start_date|date:"d/m/Y" }} - {{ budget.end_date|date:"d/m/Y" }}
+                        </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-2">
+                        <span class="text-gray-400">Status:</span>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {% if budget.is_over_budget %}bg-danger-900/30 text-danger-400{% elif budget.progress_percentage >= 90 %}bg-warning-900/30 text-warning-400{% else %}bg-success-900/30 text-success-400{% endif %}">
+                            {% if budget.is_over_budget %}
+                                Excedido ({{ budget.progress_percentage|floatformat:1 }}%)
+                            {% elif budget.progress_percentage >= 90 %}
+                                Atenção ({{ budget.progress_percentage|floatformat:1 }}%)
+                            {% else %}
+                                Saudável ({{ budget.progress_percentage|floatformat:1 }}%)
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Progress Visualization -->
+                <div class="mt-6">
+                    <div class="flex justify-between text-sm text-gray-400 mb-2">
+                        <span>Progresso</span>
+                        <span>{{ budget.progress_percentage|floatformat:1 }}%</span>
+                    </div>
+                    <div class="progress-preview h-3">
+                        <div class="progress-preview-fill {% if budget.is_over_budget %}danger{% elif budget.progress_percentage >= 90 %}warning{% else %}success{% endif %}" 
+                             style="width: {% if budget.progress_percentage > 100 %}100{% else %}{{ budget.progress_percentage }}{% endif %}%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Impact Analysis Card -->
+            <div class="delete-card p-6 fade-in" style="animation-delay: 0.3s;">
+                <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-3 text-danger-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Impacto da Exclusão
+                </h3>
+                
+                <div class="space-y-4">
+                    <div class="impact-item rounded-lg p-4">
+                        <div class="flex items-center text-danger-200 font-medium mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Dados do Orçamento
+                        </div>
+                        <p class="text-danger-100 text-sm">
+                            Todas as configurações, histórico de progresso e relatórios relacionados a este orçamento serão permanentemente removidos.
+                        </p>
+                    </div>
+                    
+                    {% if budget.related_transactions_count > 0 %}
+                    <div class="impact-item rounded-lg p-4">
+                        <div class="flex items-center text-danger-200 font-medium mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            Transações Relacionadas
+                        </div>
+                        <p class="text-danger-100 text-sm">
+                            <strong>{{ budget.related_transactions_count }}</strong> transaç{% if budget.related_transactions_count != 1 %}ões{% else %}ão{% endif %} na categoria "{{ budget.category.name }}" permanecerão no sistema, mas perderão a referência de orçamento.
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="impact-item rounded-lg p-4">
+                        <div class="flex items-center text-danger-200 font-medium mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Histórico de Performance
+                        </div>
+                        <p class="text-danger-100 text-sm">
+                            Dados históricos de desempenho, tendências e análises comparativas deste orçamento serão perdidos definitivamente.
+                        </p>
+                    </div>
+                    
+                    <div class="impact-item rounded-lg p-4">
+                        <div class="flex items-center text-danger-200 font-medium mb-2">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            Dashboards e Relatórios
+                        </div>
+                        <p class="text-danger-100 text-sm">
+                            Este orçamento será removido de todos os dashboards, relatórios comparativos e análises financeiras futuras.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Alternative Actions -->
+                <div class="mt-6 p-4 bg-blue-900/20 border border-blue-800/50 rounded-lg">
+                    <h4 class="text-blue-300 font-medium mb-2 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        💡 Alternativas
+                    </h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="text-blue-200">
+                            • <a href="{% url 'budgets:update' budget.pk %}" class="text-blue-300 hover:text-blue-200 underline">Editar orçamento</a> para ajustar valores ou períodos
+                        </div>
+                        <div class="text-blue-200">
+                            • Criar um novo orçamento baseado neste como modelo
+                        </div>
+                        <div class="text-blue-200">
+                            • Arquivar o orçamento (manter dados históricos)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirmation Form -->
+        <div class="mt-8 fade-in" style="animation-delay: 0.4s;">
+            <form method="post" class="delete-card p-8">
+                {% csrf_token %}
+                
+                <h3 class="text-2xl font-bold text-white mb-6 text-center">
+                    Confirmação Final
+                </h3>
+                
+                <div class="mb-6 p-4 bg-danger-900/30 border border-danger-800/50 rounded-lg">
+                    <p class="text-danger-200 text-center leading-relaxed">
+                        Digite <strong class="text-danger-100">"EXCLUIR {{ budget.name|upper }}"</strong> para confirmar a exclusão:
+                    </p>
+                    
+                    <div class="mt-4">
+                        <input type="text" 
+                               id="confirmation-input" 
+                               class="form-input w-full py-3 px-4 rounded-lg border-2 border-danger-600 bg-dark-700/80 text-white placeholder-gray-400 focus:border-danger-500 focus:ring-2 focus:ring-danger-500/20 transition-all text-center font-mono"
+                               placeholder="Digite a confirmação aqui..."
+                               autocomplete="off"
+                               required>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="{% url 'budgets:detail' budget.pk %}" 
+                       class="btn-secondary-enhanced flex items-center justify-center order-2 sm:order-1 px-8">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Cancelar
+                    </a>
+                    
+                    <button type="submit" 
+                            id="delete-confirm-btn"
+                            class="btn-delete-confirm text-white font-semibold px-8 py-3 rounded-xl transition-all duration-300 shadow-lg flex items-center justify-center order-1 sm:order-2"
+                            disabled>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Excluir Orçamento Permanentemente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmationInput = document.getElementById('confirmation-input');
+    const deleteBtn = document.getElementById('delete-confirm-btn');
+    const expectedText = 'EXCLUIR {{ budget.name|upper|escapejs }}';
+    
+    // Enhanced confirmation validation
+    function validateConfirmation() {
+        const inputValue = confirmationInput.value.trim().toUpperCase();
+        const isValid = inputValue === expectedText;
+        
+        if (isValid) {
+            deleteBtn.disabled = false;
+            deleteBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            confirmationInput.classList.remove('border-danger-600');
+            confirmationInput.classList.add('border-success-500');
+        } else {
+            deleteBtn.disabled = true;
+            deleteBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            confirmationInput.classList.remove('border-success-500');
+            confirmationInput.classList.add('border-danger-600');
+        }
+    }
+    
+    // Real-time validation
+    confirmationInput.addEventListener('input', validateConfirmation);
+    confirmationInput.addEventListener('paste', function() {
+        setTimeout(validateConfirmation, 10);
+    });
+    
+    // Enhanced form submission
+    const form = document.querySelector('form[method="post"]');
+    form.addEventListener('submit', function(e) {
+        const inputValue = confirmationInput.value.trim().toUpperCase();
+        
+        if (inputValue !== expectedText) {
+            e.preventDefault();
+            
+            // Show error animation
+            confirmationInput.style.animation = 'shake 0.5s ease-in-out';
+            confirmationInput.style.borderColor = '#EF4444';
+            
+            setTimeout(() => {
+                confirmationInput.style.animation = '';
+            }, 500);
+            
+            // Show toast error if available
+            if (typeof toastManager !== 'undefined') {
+                toastManager.error('Confirmação incorreta. Digite exatamente: ' + expectedText);
+            } else {
+                alert('Confirmação incorreta. Digite exatamente: ' + expectedText);
+            }
+            return false;
+        }
+        
+        // Final confirmation dialog
+        const finalConfirm = confirm(
+            `🚨 ÚLTIMA CHANCE!\n\n` +
+            `Você está prestes a excluir permanentemente:\n` +
+            `• Orçamento: "{{ budget.name }}"\n` +
+            `• Categoria: "{{ budget.category.name }}"\n` +
+            `• Valor: {{ budget.planned_amount|currency }}\n\n` +
+            `Esta ação NÃO PODE ser desfeita!\n\n` +
+            `Tem certeza absoluta que deseja continuar?`
+        );
+        
+        if (!finalConfirm) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show loading state
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Excluindo...
+        `;
+    });
+    
+    // Add shake animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes shake {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Focus on confirmation input
+    confirmationInput.focus();
+    
+    // Enhanced keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        // Cancel with Escape
+        if (e.key === 'Escape') {
+            const confirmLeave = confirm('Cancelar a exclusão do orçamento?');
+            if (confirmLeave) {
+                window.location.href = "{% url 'budgets:detail' budget.pk %}";
+            }
+        }
+        
+        // Submit with Enter (if confirmation is correct)
+        if (e.key === 'Enter' && !deleteBtn.disabled) {
+            form.submit();
+        }
+    });
+    
+    // Animate progress bar
+    const progressBar = document.querySelector('.progress-preview-fill');
+    if (progressBar) {
+        const width = progressBar.style.width;
+        progressBar.style.width = '0%';
+        
+        setTimeout(() => {
+            progressBar.style.width = width;
+        }, 1000);
+    }
+    
+    // Show warning toast on page load
+    if (typeof toastManager !== 'undefined') {
+        setTimeout(() => {
+            toastManager.warning('⚠️ Você está prestes a excluir um orçamento permanentemente!', 6000);
+        }, 1000);
+    }
+});
+</script>
+{% endblock %}

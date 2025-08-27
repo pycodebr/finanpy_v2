@@ -1,0 +1,826 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Novo{% endif %} Orçamento - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Enhanced form animations */
+    .form-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 1rem;
+        backdrop-filter: blur(12px);
+        background: rgba(31, 41, 55, 0.7);
+        border: 1px solid rgba(55, 65, 81, 0.4);
+    }
+    
+    .form-card:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+        background: rgba(31, 41, 55, 0.85);
+    }
+    
+    /* Enhanced form field animations */
+    .form-field {
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .form-field input:focus + .form-label,
+    .form-field select:focus + .form-label,
+    .form-field input:not(:placeholder-shown) + .form-label,
+    .form-field select:not([value=""]) + .form-label {
+        transform: translateY(-1.5rem) scale(0.875);
+        color: #3B82F6;
+        font-weight: 600;
+    }
+    
+    .form-label {
+        position: absolute;
+        left: 0.75rem;
+        top: 0.875rem;
+        color: #9CA3AF;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        background: linear-gradient(to bottom, transparent 0%, transparent 40%, rgba(31, 41, 55, 0.9) 40%, rgba(31, 41, 55, 0.9) 60%, transparent 60%);
+        z-index: 10;
+        padding: 0 0.25rem;
+    }
+    
+    /* Currency input enhancement */
+    .currency-input {
+        position: relative;
+    }
+    
+    .currency-symbol {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6B7280;
+        font-weight: bold;
+        font-size: 1.125rem;
+        pointer-events: none;
+        z-index: 5;
+    }
+    
+    .currency-input input {
+        padding-left: 3rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        text-align: right;
+    }
+    
+    .currency-input input:focus {
+        color: #10B981;
+    }
+    
+    /* Date range visualization */
+    .date-range {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(51, 65, 85, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .date-range:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateY(-1px);
+    }
+    
+    /* Category preview */
+    .category-preview {
+        transform: scale(0.95);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        max-height: 0;
+        overflow: hidden;
+    }
+    
+    .category-preview.show {
+        transform: scale(1);
+        opacity: 1;
+        max-height: 200px;
+    }
+    
+    /* Historical data display */
+    .historical-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(51, 65, 85, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .historical-card:hover {
+        border-color: rgba(59, 130, 246, 0.3);
+        background: rgba(15, 23, 42, 0.8);
+    }
+    
+    /* Validation styling */
+    .form-field.error input,
+    .form-field.error select {
+        border-color: #EF4444 !important;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+    }
+    
+    .form-field.error .form-label {
+        color: #EF4444 !important;
+    }
+    
+    .error-message {
+        color: #EF4444;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        opacity: 0;
+        transform: translateY(-10px);
+        animation: errorSlideIn 0.3s ease-out forwards;
+    }
+    
+    @keyframes errorSlideIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Success validation */
+    .form-field.success input,
+    .form-field.success select {
+        border-color: #10B981 !important;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+    }
+    
+    .form-field.success .form-label {
+        color: #10B981 !important;
+    }
+    
+    /* Smart suggestion styling */
+    .suggestion {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        color: #93C5FD;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .suggestion:hover {
+        background: rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #DBEAFE;
+        transform: translateY(-1px);
+    }
+    
+    /* Progress indicator */
+    .form-progress {
+        background: linear-gradient(90deg, #374151 0%, #4B5563 100%);
+        overflow: hidden;
+    }
+    
+    .form-progress-fill {
+        background: linear-gradient(90deg, #3B82F6 0%, #1D4ED8 100%);
+        transition: width 0.5s ease;
+        height: 100%;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .form-card {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+        
+        .currency-input input {
+            font-size: 1rem;
+        }
+        
+        .currency-symbol {
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Enhanced Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center mb-6">
+                <a href="{% url 'budgets:list' %}" 
+                   class="mr-4 p-2 bg-dark-800/60 hover:bg-dark-700/60 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-gray-400 hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">
+                        <span class="text-3xl mr-3">{% if form.instance.pk %}✏️{% else %}📊{% endif %}</span>
+                        {% if form.instance.pk %}Editar Orçamento{% else %}Novo Orçamento{% endif %}
+                    </h1>
+                    <p class="text-lg text-gray-300">
+                        {% if form.instance.pk %}
+                            Ajuste seu orçamento para manter o controle financeiro
+                        {% else %}
+                            Defina limites de gastos para suas categorias
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Form Progress Indicator -->
+            <div class="form-progress rounded-full h-2 mb-4">
+                <div class="form-progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="text-center text-sm text-gray-400">
+                Progresso do formulário: <span id="progress-text">0%</span>
+            </div>
+        </div>
+
+        <form method="post" class="space-y-8" id="budgetForm" novalidate>
+            {% csrf_token %}
+            
+            <!-- Main Form Card -->
+            <div class="form-card p-8">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Informações Básicas
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Name Field -->
+                    <div class="form-field">
+                        <input type="text" 
+                               name="name" 
+                               id="id_name"
+                               class="form-input w-full py-4 px-3 rounded-xl border-2 border-dark-600 bg-dark-700/80 text-white placeholder-transparent focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                               placeholder="Nome do orçamento"
+                               value="{{ form.name.value|default:'' }}"
+                               required>
+                        <label for="id_name" class="form-label">Nome do Orçamento *</label>
+                        {% if form.name.errors %}
+                            <div class="error-message">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Category Field with Preview -->
+                    <div class="form-field">
+                        <select name="category" 
+                                id="id_category"
+                                class="form-input w-full py-4 px-3 rounded-xl border-2 border-dark-600 bg-dark-700/80 text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                                required>
+                            <option value="">Selecione uma categoria</option>
+                            {% for category in form.category.field.queryset %}
+                            <option value="{{ category.pk }}" 
+                                    data-color="{{ category.color }}" 
+                                    data-icon="{{ category.icon }}"
+                                    {% if form.category.value == category.pk|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <label for="id_category" class="form-label">Categoria *</label>
+                        {% if form.category.errors %}
+                            <div class="error-message">{{ form.category.errors.0 }}</div>
+                        {% endif %}
+                        
+                        <!-- Category Preview -->
+                        <div id="category-preview" class="category-preview mt-4 p-4 rounded-lg border border-dark-600">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-lg flex items-center justify-center mr-3" id="preview-icon-container">
+                                    <span id="preview-icon" class="text-xl"></span>
+                                </div>
+                                <div>
+                                    <div class="text-white font-medium" id="preview-name"></div>
+                                    <div class="text-sm text-gray-400">Categoria selecionada</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Amount Field with Smart Suggestions -->
+                <div class="mt-8">
+                    <div class="form-field currency-input">
+                        <div class="currency-symbol">R$</div>
+                        <input type="text" 
+                               name="planned_amount" 
+                               id="id_planned_amount"
+                               class="form-input w-full py-4 px-3 rounded-xl border-2 border-dark-600 bg-dark-700/80 text-white placeholder-transparent focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                               placeholder="0,00"
+                               value="{{ form.planned_amount.value|default:'' }}"
+                               required
+                               autocomplete="off">
+                        <label for="id_planned_amount" class="form-label">Valor Planejado *</label>
+                        {% if form.planned_amount.errors %}
+                            <div class="error-message">{{ form.planned_amount.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Smart Suggestions -->
+                    <div id="amount-suggestions" class="mt-4 hidden">
+                        <div class="text-sm text-gray-400 mb-3">💡 Sugestões baseadas no histórico:</div>
+                        <div class="flex flex-wrap gap-2" id="suggestions-container">
+                            <!-- Dynamic suggestions will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Period Configuration Card -->
+            <div class="form-card p-8">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Período do Orçamento
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Start Date -->
+                    <div class="form-field">
+                        <input type="date" 
+                               name="start_date" 
+                               id="id_start_date"
+                               class="form-input w-full py-4 px-3 rounded-xl border-2 border-dark-600 bg-dark-700/80 text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                               value="{{ form.start_date.value|date:'Y-m-d'|default:'' }}"
+                               required>
+                        <label for="id_start_date" class="form-label">Data de Início *</label>
+                        {% if form.start_date.errors %}
+                            <div class="error-message">{{ form.start_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- End Date -->
+                    <div class="form-field">
+                        <input type="date" 
+                               name="end_date" 
+                               id="id_end_date"
+                               class="form-input w-full py-4 px-3 rounded-xl border-2 border-dark-600 bg-dark-700/80 text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                               value="{{ form.end_date.value|date:'Y-m-d'|default:'' }}"
+                               required>
+                        <label for="id_end_date" class="form-label">Data de Término *</label>
+                        {% if form.end_date.errors %}
+                            <div class="error-message">{{ form.end_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Period Summary -->
+                <div id="period-summary" class="date-range mt-6 p-4 rounded-lg hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-400">Duração do orçamento:</div>
+                        <div class="text-white font-semibold" id="period-duration">--</div>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <div class="text-sm text-gray-400">Orçamento diário sugerido:</div>
+                        <div class="text-primary-400 font-semibold" id="daily-budget">R$ --</div>
+                    </div>
+                </div>
+                
+                <!-- Quick Period Buttons -->
+                <div class="mt-6">
+                    <div class="text-sm text-gray-400 mb-3">⚡ Períodos rápidos:</div>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" class="suggestion px-3 py-2 rounded-lg text-xs font-medium" data-period="current-month">
+                            Mês Atual
+                        </button>
+                        <button type="button" class="suggestion px-3 py-2 rounded-lg text-xs font-medium" data-period="next-month">
+                            Próximo Mês
+                        </button>
+                        <button type="button" class="suggestion px-3 py-2 rounded-lg text-xs font-medium" data-period="current-quarter">
+                            Trimestre Atual
+                        </button>
+                        <button type="button" class="suggestion px-3 py-2 rounded-lg text-xs font-medium" data-period="custom-30">
+                            Próximos 30 dias
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Historical Data Card -->
+            {% if historical_data %}
+            <div class="historical-card rounded-xl p-6">
+                <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    📊 Dados Históricos
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-dark-900/40 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-primary-400">{{ historical_data.avg_monthly|currency }}</div>
+                        <div class="text-sm text-gray-400 mt-1">Média Mensal</div>
+                    </div>
+                    <div class="bg-dark-900/40 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-warning-400">{{ historical_data.last_month|currency }}</div>
+                        <div class="text-sm text-gray-400 mt-1">Mês Passado</div>
+                    </div>
+                    <div class="bg-dark-900/40 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-success-400">{{ historical_data.trend_percentage|floatformat:1 }}%</div>
+                        <div class="text-sm text-gray-400 mt-1">Tendência</div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <button type="button" class="suggestion px-4 py-2 rounded-lg text-sm font-medium" id="use-historical-avg">
+                        📈 Usar média histórica como base
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                <a href="{% url 'budgets:list' %}" 
+                   class="btn-secondary-enhanced flex items-center justify-center order-2 sm:order-1">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                    Cancelar
+                </a>
+                
+                <button type="submit" 
+                        class="btn-primary-enhanced flex items-center justify-center order-1 sm:order-2"
+                        id="submit-btn">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    {% if form.instance.pk %}Atualizar Orçamento{% else %}Criar Orçamento{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation and progress tracking
+    const form = document.getElementById('budgetForm');
+    const progressBar = document.querySelector('.form-progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Required fields for progress calculation
+    const requiredFields = ['id_name', 'id_category', 'id_planned_amount', 'id_start_date', 'id_end_date'];
+    
+    // Enhanced currency formatting
+    const amountInput = document.getElementById('id_planned_amount');
+    if (amountInput) {
+        // Format existing value on page load
+        if (amountInput.value) {
+            const numValue = parseFloat(amountInput.value);
+            if (!isNaN(numValue)) {
+                amountInput.value = numValue.toFixed(2).replace('.', ',');
+            }
+        }
+        
+        amountInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value) {
+                value = (parseFloat(value) / 100).toFixed(2).replace('.', ',');
+                e.target.value = value;
+            }
+            updateProgress();
+            updatePeriodSummary();
+            
+            // Show suggestions based on amount
+            showAmountSuggestions(e.target.value);
+        });
+        
+        amountInput.addEventListener('blur', function(e) {
+            if (e.target.value && !e.target.value.includes(',')) {
+                const numValue = parseFloat(e.target.value);
+                if (!isNaN(numValue)) {
+                    e.target.value = numValue.toFixed(2).replace('.', ',');
+                }
+            }
+        });
+    }
+    
+    // Category preview functionality
+    const categorySelect = document.getElementById('id_category');
+    const categoryPreview = document.getElementById('category-preview');
+    
+    if (categorySelect && categoryPreview) {
+        // Show preview for pre-selected category on page load
+        updateCategoryPreview();
+        
+        categorySelect.addEventListener('change', updateCategoryPreview);
+    }
+    
+    function updateCategoryPreview() {
+        const selectedOption = categorySelect.selectedOptions[0];
+        
+        if (selectedOption && selectedOption.value) {
+            const color = selectedOption.dataset.color || '#6B7280';
+            const icon = selectedOption.dataset.icon || '💰';
+            const name = selectedOption.textContent;
+            
+            document.getElementById('preview-icon-container').style.background = 
+                `linear-gradient(135deg, ${color}30, ${color}60)`;
+            document.getElementById('preview-icon').textContent = icon;
+            document.getElementById('preview-name').textContent = name;
+            
+            categoryPreview.classList.add('show');
+            
+            // Load historical data for this category
+            loadHistoricalSuggestions(selectedOption.value);
+        } else {
+            categoryPreview.classList.remove('show');
+        }
+        updateProgress();
+    }
+    
+    // Date handling and period calculation
+    const startDateInput = document.getElementById('id_start_date');
+    const endDateInput = document.getElementById('id_end_date');
+    const periodSummary = document.getElementById('period-summary');
+    
+    if (startDateInput && endDateInput) {
+        // Set default dates if not editing
+        if (!startDateInput.value && !endDateInput.value) {
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            startDateInput.value = firstDay.toISOString().split('T')[0];
+            endDateInput.value = lastDay.toISOString().split('T')[0];
+        }
+        
+        startDateInput.addEventListener('change', function() {
+            updateProgress();
+            updatePeriodSummary();
+            validateDateRange();
+        });
+        
+        endDateInput.addEventListener('change', function() {
+            updateProgress();
+            updatePeriodSummary();
+            validateDateRange();
+        });
+        
+        // Initialize period summary
+        updatePeriodSummary();
+    }
+    
+    // Quick period buttons
+    const periodButtons = document.querySelectorAll('[data-period]');
+    periodButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const period = this.dataset.period;
+            setQuickPeriod(period);
+        });
+    });
+    
+    function setQuickPeriod(period) {
+        const today = new Date();
+        let startDate, endDate;
+        
+        switch (period) {
+            case 'current-month':
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                break;
+            case 'next-month':
+                startDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+                endDate = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+                break;
+            case 'current-quarter':
+                const quarter = Math.floor(today.getMonth() / 3);
+                startDate = new Date(today.getFullYear(), quarter * 3, 1);
+                endDate = new Date(today.getFullYear(), quarter * 3 + 3, 0);
+                break;
+            case 'custom-30':
+                startDate = new Date(today);
+                endDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+                break;
+            default:
+                return;
+        }
+        
+        startDateInput.value = startDate.toISOString().split('T')[0];
+        endDateInput.value = endDate.toISOString().split('T')[0];
+        
+        updatePeriodSummary();
+        updateProgress();
+        validateDateRange();
+    }
+    
+    function updatePeriodSummary() {
+        if (!startDateInput.value || !endDateInput.value || !amountInput.value) {
+            periodSummary.classList.add('hidden');
+            return;
+        }
+        
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const amount = parseFloat(amountInput.value.replace(',', '.')) || 0;
+        
+        const diffTime = Math.abs(endDate - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        
+        document.getElementById('period-duration').textContent = `${diffDays} dias`;
+        document.getElementById('daily-budget').textContent = 
+            `R$ ${(amount / diffDays).toFixed(2).replace('.', ',')}`;
+        
+        periodSummary.classList.remove('hidden');
+    }
+    
+    function validateDateRange() {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        
+        if (endDate <= startDate) {
+            showFieldError(endDateInput, 'A data de término deve ser posterior à data de início.');
+            return false;
+        } else {
+            clearFieldError(endDateInput);
+            return true;
+        }
+    }
+    
+    // Progress tracking
+    function updateProgress() {
+        let filledFields = 0;
+        
+        requiredFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && field.value.trim() !== '') {
+                filledFields++;
+                markFieldAsSuccess(field);
+            } else if (field) {
+                clearFieldValidation(field);
+            }
+        });
+        
+        const progress = (filledFields / requiredFields.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+        
+        // Enable submit button when form is complete
+        submitBtn.disabled = progress < 100;
+        if (progress >= 100) {
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    }
+    
+    // Validation helpers
+    function showFieldError(field, message) {
+        const fieldContainer = field.closest('.form-field');
+        if (fieldContainer) {
+            fieldContainer.classList.remove('success');
+            fieldContainer.classList.add('error');
+            
+            // Remove existing error message
+            const existingError = fieldContainer.querySelector('.error-message');
+            if (existingError) existingError.remove();
+            
+            // Add new error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            fieldContainer.appendChild(errorDiv);
+        }
+    }
+    
+    function clearFieldError(field) {
+        const fieldContainer = field.closest('.form-field');
+        if (fieldContainer) {
+            fieldContainer.classList.remove('error');
+            const errorMsg = fieldContainer.querySelector('.error-message');
+            if (errorMsg) errorMsg.remove();
+        }
+    }
+    
+    function markFieldAsSuccess(field) {
+        const fieldContainer = field.closest('.form-field');
+        if (fieldContainer) {
+            fieldContainer.classList.remove('error');
+            fieldContainer.classList.add('success');
+        }
+    }
+    
+    function clearFieldValidation(field) {
+        const fieldContainer = field.closest('.form-field');
+        if (fieldContainer) {
+            fieldContainer.classList.remove('error', 'success');
+        }
+    }
+    
+    // Smart suggestions
+    function showAmountSuggestions(currentAmount) {
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const suggestionsSection = document.getElementById('amount-suggestions');
+        
+        if (!currentAmount || currentAmount === '0,00') {
+            suggestionsSection.classList.add('hidden');
+            return;
+        }
+        
+        // Generate smart suggestions based on current amount
+        const amount = parseFloat(currentAmount.replace(',', '.'));
+        const suggestions = [
+            { label: '-20%', value: amount * 0.8 },
+            { label: '+20%', value: amount * 1.2 },
+            { label: 'Arredondar', value: Math.ceil(amount / 100) * 100 },
+        ];
+        
+        suggestionsContainer.innerHTML = '';
+        suggestions.forEach(suggestion => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'suggestion px-3 py-2 rounded-lg text-xs font-medium';
+            btn.textContent = `${suggestion.label}: R$ ${suggestion.value.toFixed(2).replace('.', ',')}`;
+            btn.addEventListener('click', function() {
+                amountInput.value = suggestion.value.toFixed(2).replace('.', ',');
+                updateProgress();
+                updatePeriodSummary();
+                suggestionsSection.classList.add('hidden');
+            });
+            suggestionsContainer.appendChild(btn);
+        });
+        
+        suggestionsSection.classList.remove('hidden');
+    }
+    
+    // Historical data integration
+    function loadHistoricalSuggestions(categoryId) {
+        // This would typically make an AJAX request to get historical data
+        // For now, we'll simulate with the data passed from the view
+        {% if historical_data %}
+        const useHistoricalBtn = document.getElementById('use-historical-avg');
+        if (useHistoricalBtn) {
+            useHistoricalBtn.addEventListener('click', function() {
+                amountInput.value = '{{ historical_data.avg_monthly|floatformat:2 }}'.replace('.', ',');
+                updateProgress();
+                updatePeriodSummary();
+            });
+        }
+        {% endif %}
+    }
+    
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        if (!validateDateRange()) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Salvando...
+        `;
+        
+        // Convert comma-separated amount back to decimal for backend
+        if (amountInput.value) {
+            amountInput.value = amountInput.value.replace(',', '.');
+        }
+    });
+    
+    // Initialize form
+    updateProgress();
+    
+    // Add event listeners for all inputs to track progress
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', updateProgress);
+            field.addEventListener('change', updateProgress);
+        }
+    });
+    
+    // Enhanced keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        // Save with Ctrl/Cmd + S
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            if (!submitBtn.disabled) {
+                form.submit();
+            }
+        }
+        
+        // Cancel with Escape
+        if (e.key === 'Escape') {
+            const confirmLeave = confirm('Tem certeza que deseja cancelar? As alterações não salvas serão perdidas.');
+            if (confirmLeave) {
+                window.location.href = "{% url 'budgets:list' %}";
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
