@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Excluir Transação - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .danger-card {
+        background: rgba(31, 41, 55, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1);
+    }
+    
+    .warning-banner {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .transaction-summary {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+    }
+    
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(71, 85, 105, 0.2);
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .detail-row:first-child {
+        padding-top: 0;
+    }
+    
+    .detail-label {
+        font-weight: 500;
+        color: #9CA3AF;
+        font-size: 0.875rem;
+    }
+    
+    .detail-value {
+        color: #F9FAFB;
+        font-weight: 500;
+        text-align: right;
+    }
+    
+    .transaction-type-income {
+        color: #10B981;
+    }
+    
+    .transaction-type-expense {
+        color: #EF4444;
+    }
+    
+    .category-display {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .category-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        font-size: 0.75rem;
+    }
+    
+    .consequences-list {
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+    
+    .consequences-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .consequences-list li {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        color: #F3F4F6;
+        font-size: 0.875rem;
+    }
+    
+    .consequences-list li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .consequences-list li::before {
+        content: '⚠️';
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+        margin-top: 0.125rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
+    }
+    
+    @media (min-width: 640px) {
+        .action-buttons {
+            flex-direction: row;
+        }
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #DC2626, #B91C1C);
+        color: white;
+        border: none;
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        flex: 1;
+    }
+    
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #B91C1C, #991B1B);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+    }
+    
+    .btn-cancel {
+        background: rgba(75, 85, 99, 0.8);
+        color: white;
+        border: 1px solid rgba(107, 114, 128, 0.3);
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        flex: 1;
+    }
+    
+    .btn-cancel:hover {
+        background: rgba(75, 85, 99, 1);
+        border-color: rgba(107, 114, 128, 0.5);
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <nav class="flex items-center space-x-2 text-sm text-gray-400 mb-4">
+                <a href="{% url 'transactions:list' %}" class="hover:text-white transition-colors">Transações</a>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+                <a href="{% url 'transactions:detail' transaction.pk %}" class="hover:text-white transition-colors">{{ transaction.description|truncatechars:20 }}</a>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+                <span class="text-white">Excluir</span>
+            </nav>
+            
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <span class="text-2xl mr-2">🗑️</span>
+                Excluir Transação
+            </h1>
+            <p class="text-gray-300">
+                Confirme a exclusão da transação abaixo
+            </p>
+        </div>
+
+        <!-- Warning Banner -->
+        <div class="warning-banner">
+            <div class="flex items-start">
+                <div class="w-8 h-8 bg-red-600/20 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-red-400 mb-1">Atenção: Ação Irreversível</h3>
+                    <p class="text-red-200 text-sm">
+                        Esta ação não pode ser desfeita. A transação será permanentemente removida do sistema 
+                        e o saldo da conta será automaticamente ajustado.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Summary -->
+        <div class="danger-card rounded-xl p-6 mb-6">
+            <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Resumo da Transação
+            </h2>
+            
+            <div class="transaction-summary">
+                <div class="detail-row">
+                    <span class="detail-label">Descrição</span>
+                    <span class="detail-value font-semibold">{{ transaction.description }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Tipo</span>
+                    <span class="detail-value">
+                        <span class="transaction-type-{{ transaction.transaction_type|lower }} font-semibold">
+                            {{ transaction.get_transaction_type_display }}
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Valor</span>
+                    <span class="detail-value">
+                        <span class="text-xl font-bold transaction-type-{{ transaction.transaction_type|lower }}">
+                            {% if transaction.transaction_type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount_display }}
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Data</span>
+                    <span class="detail-value">{{ transaction.transaction_date|date:"d/m/Y" }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Categoria</span>
+                    <span class="detail-value">
+                        <div class="category-display">
+                            <div class="category-icon" style="background-color: {{ transaction.category.color }}40; border: 1px solid {{ transaction.category.color }}">
+                                {{ transaction.category.icon }}
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">{{ transaction.category.name }}</div>
+                                {% if transaction.category.parent %}
+                                <div class="text-xs text-gray-400">{{ transaction.category.parent.name }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Conta</span>
+                    <span class="detail-value">
+                        <div class="text-right">
+                            <div class="font-medium">{{ transaction.account.name }}</div>
+                            <div class="text-xs text-gray-400">{{ transaction.account.get_account_type_display }}</div>
+                        </div>
+                    </span>
+                </div>
+                
+                {% if transaction.is_recurring %}
+                <div class="detail-row">
+                    <span class="detail-label">Recorrência</span>
+                    <span class="detail-value">
+                        <div class="flex items-center text-blue-400">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            {{ transaction.get_recurrence_type_display }}
+                        </div>
+                    </span>
+                </div>
+                {% endif %}
+                
+                {% if transaction.notes %}
+                <div class="detail-row">
+                    <span class="detail-label">Observações</span>
+                    <span class="detail-value text-sm">{{ transaction.notes|truncatechars:50 }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Consequences -->
+        <div class="danger-card rounded-xl p-6 mb-6">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                O que acontecerá após a exclusão:
+            </h3>
+            
+            <div class="consequences-list">
+                <ul>
+                    <li>A transação será permanentemente removida do sistema</li>
+                    <li>
+                        O saldo da conta "{{ transaction.account.name }}" será ajustado:
+                        {% if transaction.transaction_type == 'INCOME' %}
+                            <strong class="text-red-400">-{{ transaction.amount_display }}</strong>
+                        {% else %}
+                            <strong class="text-green-400">+{{ transaction.amount_display }}</strong>
+                        {% endif %}
+                    </li>
+                    <li>Relatórios e estatísticas serão automaticamente atualizados</li>
+                    <li>Esta ação não afetará outras transações relacionadas</li>
+                    {% if transaction.is_recurring %}
+                    <li class="text-yellow-300">
+                        <strong>Atenção:</strong> Esta é uma transação recorrente. Apenas esta ocorrência será excluída.
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Confirmation Form -->
+        <div class="danger-card rounded-xl p-6">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="confirm-delete" class="form-checkbox mr-3" required>
+                        <span class="text-gray-200 text-sm">
+                            Confirmo que entendo que esta ação é irreversível e desejo excluir permanentemente esta transação.
+                        </span>
+                    </label>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="submit" id="delete-button" class="btn-danger" disabled>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Excluir Transação
+                    </button>
+                    
+                    <a href="{% url 'transactions:detail' transaction.pk %}" class="btn-cancel">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmCheckbox = document.getElementById('confirm-delete');
+    const deleteButton = document.getElementById('delete-button');
+    
+    // Enable/disable delete button based on checkbox
+    confirmCheckbox.addEventListener('change', function() {
+        deleteButton.disabled = !this.checked;
+        
+        if (this.checked) {
+            deleteButton.classList.add('hover:bg-red-700');
+            deleteButton.style.opacity = '1';
+        } else {
+            deleteButton.classList.remove('hover:bg-red-700');
+            deleteButton.style.opacity = '0.5';
+        }
+    });
+    
+    // Double confirmation on form submit
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!confirm('Tem ABSOLUTA CERTEZA de que deseja excluir esta transação? Esta ação NÃO PODE ser desfeita.')) {
+                e.preventDefault();
+                confirmCheckbox.checked = false;
+                deleteButton.disabled = true;
+                deleteButton.style.opacity = '0.5';
+            }
+        });
+    }
+    
+    // Auto-focus on confirmation checkbox after a small delay
+    setTimeout(() => {
+        confirmCheckbox.focus();
+    }, 500);
+    
+    // Keyboard shortcut: Escape to cancel
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            window.location.href = "{% url 'transactions:detail' transaction.pk %}";
+        }
+    });
+});
+</script>
+{% endblock %}

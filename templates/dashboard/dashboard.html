@@ -34,13 +34,13 @@
                     </p>
                 </div>
                 <div class="flex space-x-3">
-                    <button class="btn-primary flex items-center space-x-2">
+                    <a href="{% url 'transactions:create' %}" class="btn-primary-enhanced flex items-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
                         <span>Nova Transação</span>
-                    </button>
-                    <button class="bg-dark-700 hover:bg-dark-600 text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                    </a>
+                    <button class="btn-secondary flex items-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                         </svg>
@@ -221,7 +221,7 @@
                 <div class="card">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-white">Orçamentos</h3>
-                        <a href="#" class="text-primary-400 hover:text-primary-300 text-sm">Ver todos</a>
+                        <span class="text-gray-500 text-sm">Em desenvolvimento</span>
                     </div>
                     <div class="space-y-4">
                         <div class="p-4 bg-dark-700/50 rounded-lg">
@@ -263,7 +263,7 @@
                 <div class="card">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-white">Transações Recentes</h3>
-                        <a href="#" class="text-primary-400 hover:text-primary-300 text-sm">Ver todas</a>
+                        <a href="{% url 'transactions:list' %}" class="text-primary-400 hover:text-primary-300 text-sm">Ver todas</a>
                     </div>
                     <div class="space-y-3">
                         <div class="flex items-center justify-between p-3 bg-dark-700/30 rounded-lg hover:bg-dark-700/50 transition-colors duration-200">
@@ -332,7 +332,7 @@
                 <div class="card">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-white">Metas Financeiras</h3>
-                        <a href="#" class="text-primary-400 hover:text-primary-300 text-sm">Gerenciar</a>
+                        <span class="text-gray-500 text-sm">Em desenvolvimento</span>
                     </div>
                     <div class="space-y-4">
                         <div class="p-4 bg-dark-700/50 rounded-lg">

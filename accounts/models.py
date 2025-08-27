@@ -165,6 +165,4 @@ class Account(models.Model):
     
     def get_transactions_queryset(self):
         """Return queryset of transactions for this account."""
-        # This will be used when Transaction model is implemented
-        # return self.transactions.select_related('category').order_by('-transaction_date')
-        pass
+        return self.transactions.select_related('category', 'user').order_by('-transaction_date', '-created_at')

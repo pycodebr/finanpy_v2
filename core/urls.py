@@ -38,6 +38,9 @@ urlpatterns = [
     
     # Categories management URLs
     path('categories/', include('categories.urls')),
+    
+    # Transactions management URLs
+    path('transactions/', include('transactions.urls')),
 ]
 
 # Serve static and media files during development

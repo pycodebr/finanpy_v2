@@ -452,49 +452,49 @@ erDiagram
   - [X] CategoryUpdateView preservando hierarquia
   - [X] Validação para evitar loops na hierarquia
 
-### Sprint 3: Transações (3 semanas)
+### Sprint 3: Transações (3 semanas) ✅
 
-#### Tarefa 3.1: Modelo de Transações
-- [ ] **3.1.1** Criar modelo Transaction
-  - [ ] ForeignKeys para User, Account, Category
-  - [ ] Campos: transaction_type, amount, description, transaction_date
-  - [ ] Campos opcionais: notes, is_recurring, recurrence_type
-- [ ] **3.1.2** Implementar validações de negócio
-  - [ ] Validação de valores positivos
-  - [ ] Validação de datas (não futuras para transações normais)
-  - [ ] Validação de conta ativa
-- [ ] **3.1.3** Signals para atualização de saldos
-  - [ ] Signal post_save para somar/subtrair do saldo da conta
-  - [ ] Signal post_delete para reverter alterações no saldo
-  - [ ] Tratamento de edições de transações
+#### Tarefa 3.1: Modelo de Transações ✅
+- [X] **3.1.1** Criar modelo Transaction
+  - [X] ForeignKeys para User, Account, Category
+  - [X] Campos: transaction_type, amount, description, transaction_date
+  - [X] Campos opcionais: notes, is_recurring, recurrence_type
+- [X] **3.1.2** Implementar validações de negócio
+  - [X] Validação de valores positivos
+  - [X] Validação de datas (não futuras para transações normais)
+  - [X] Validação de conta ativa
+- [X] **3.1.3** Signals para atualização de saldos
+  - [X] Signal post_save para somar/subtrair do saldo da conta
+  - [X] Signal post_delete para reverter alterações no saldo
+  - [X] Tratamento de edições de transações
 
-#### Tarefa 3.2: Views de Transações
-- [ ] **3.2.1** TransactionListView com filtros
-  - [ ] Listagem paginada de transações
-  - [ ] Filtros por período, categoria, conta, tipo
-  - [ ] Ordenação por data (mais recentes primeiro)
-- [ ] **3.2.2** TransactionCreateView
-  - [ ] Formulário com validação client-side
-  - [ ] Seleção dinâmica de categorias por tipo
-  - [ ] Campo de valor com formatação de moeda
-- [ ] **3.2.3** TransactionUpdateView e DeleteView
-  - [ ] Edição com preservação de histórico
-  - [ ] Exclusão com confirmação
-  - [ ] Logs de auditoria para alterações
+#### Tarefa 3.2: Views de Transações ✅
+- [X] **3.2.1** TransactionListView com filtros
+  - [X] Listagem paginada de transações
+  - [X] Filtros por período, categoria, conta, tipo
+  - [X] Ordenação por data (mais recentes primeiro)
+- [X] **3.2.2** TransactionCreateView
+  - [X] Formulário com validação client-side
+  - [X] Seleção dinâmica de categorias por tipo
+  - [X] Campo de valor com formatação de moeda
+- [X] **3.2.3** TransactionUpdateView e DeleteView
+  - [X] Edição com preservação de histórico
+  - [X] Exclusão com confirmação
+  - [X] Logs de auditoria para alterações
 
-#### Tarefa 3.3: Templates de Transações
-- [ ] **3.3.1** Lista responsiva de transações
-  - [ ] Cards com informações essenciais
-  - [ ] Cores diferentes para receitas/despesas
-  - [ ] Ícones das categorias
-- [ ] **3.3.2** Modal de transação rápida
-  - [ ] Formulário simplificado para adição rápida
-  - [ ] Campos essenciais apenas
-  - [ ] Validação em tempo real
-- [ ] **3.3.3** Página de detalhes da transação
-  - [ ] Visualização completa com todos os campos
-  - [ ] Botões para editar/excluir
-  - [ ] Histórico de alterações (se aplicável)
+#### Tarefa 3.3: Templates de Transações ✅
+- [X] **3.3.1** Lista responsiva de transações
+  - [X] Cards com informações essenciais
+  - [X] Cores diferentes para receitas/despesas
+  - [X] Ícones das categorias
+- [X] **3.3.2** Modal de transação rápida
+  - [X] Formulário simplificado para adição rápida
+  - [X] Campos essenciais apenas
+  - [X] Validação em tempo real
+- [X] **3.3.3** Página de detalhes da transação
+  - [X] Visualização completa com todos os campos
+  - [X] Botões para editar/excluir
+  - [X] Histórico de alterações (se aplicável)
 
 ### Sprint 4: Orçamentos (2 semanas)
 

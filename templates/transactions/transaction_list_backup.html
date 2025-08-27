@@ -1,0 +1,1029 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}Transações - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .transaction-row:hover {
+        background-color: rgba(59, 130, 246, 0.1);
+    }
+    
+    .filter-card {
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+    
+    .transaction-type-income {
+        color: #10B981 !important;
+    }
+    
+    .transaction-type-expense {
+        color: #EF4444 !important;
+    }
+    
+    .category-icon {
+        transition: all 0.3s ease;
+    }
+    
+    .category-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Quick Transaction Modal Styles */
+    .quick-type-btn {
+        background: rgba(31, 41, 55, 0.6);
+        border-color: rgba(75, 85, 99, 0.5);
+        color: #D1D5DB;
+        font-weight: 500;
+    }
+    
+    .quick-type-btn:hover {
+        border-color: rgba(107, 114, 128, 0.8);
+        background: rgba(55, 65, 81, 0.8);
+    }
+    
+    .quick-type-btn.quick-type-active {
+        background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+        border-color: #3B82F6;
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .quick-type-btn.quick-type-active.expense {
+        background: linear-gradient(135deg, #EF4444, #DC2626);
+        border-color: #EF4444;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    .quick-type-btn.quick-type-active.income {
+        background: linear-gradient(135deg, #10B981, #059669);
+        border-color: #10B981;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    #quickTransactionModal {
+        animation: modalFadeIn 0.3s ease-out;
+    }
+    
+    #quickTransactionModal.hidden {
+        animation: modalFadeOut 0.3s ease-out;
+    }
+    
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes modalFadeOut {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+    
+    /* Loading state for submit button */
+    .btn-loading {
+        position: relative;
+        color: transparent !important;
+    }
+    
+    .btn-loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">
+                        <span class="text-2xl mr-2">💰</span>
+                        Transações
+                    </h1>
+                    <p class="text-gray-300">
+                        Gerencie suas receitas e despesas
+                    </p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <!-- Desktop buttons -->
+                    <div class="hidden sm:flex gap-3">
+                        <button onclick="openQuickTransactionModal()" 
+                                class="btn-primary inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Transação Rápida
+                        </button>
+                        <a href="{% url 'transactions:create' %}" 
+                           class="btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Nova Transação
+                        </a>
+                        <a href="{% url 'transactions:stats' %}" 
+                           class="text-gray-400 hover:text-white inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-colors border border-gray-600 hover:border-gray-500">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            Relatórios
+                        </a>
+                    </div>
+                    
+                    <!-- Mobile buttons -->
+                    <div class="sm:hidden flex flex-col gap-2">
+                        <button onclick="openQuickTransactionModal()" 
+                                class="btn-primary w-full inline-flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Transação Rápida
+                        </button>
+                        <div class="flex gap-2">
+                            <a href="{% url 'transactions:create' %}" 
+                               class="btn-secondary flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg font-medium transition-colors">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                Nova
+                            </a>
+                            <a href="{% url 'transactions:stats' %}" 
+                               class="text-gray-400 hover:text-white flex-1 inline-flex items-center justify-center px-3 py-2 rounded-lg font-medium transition-colors border border-gray-600 hover:border-gray-500">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                                Relatórios
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-4 border border-dark-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-financial rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-lg">📊</span>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Total de Transações</p>
+                        <p class="text-xl font-semibold text-white">{{ total_transactions }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-4 border border-dark-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-success rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-lg">💰</span>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Total de Receitas</p>
+                        <p class="text-xl font-semibold text-success-400">R$ {{ income_total|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-4 border border-dark-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-danger rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-lg">💸</span>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Total de Despesas</p>
+                        <p class="text-xl font-semibold text-danger-400">R$ {{ expense_total|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl p-4 border border-dark-700">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-warning rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-lg">⚖️</span>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Saldo Líquido</p>
+                        <p class="text-xl font-semibold {% if balance >= 0 %}text-success-400{% else %}text-danger-400{% endif %}">
+                            {% if balance >= 0 %}+{% endif %}R$ {{ balance|floatformat:2 }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-card rounded-xl p-6 mb-6">
+            <form method="get" class="space-y-4">
+                <div class="flex flex-col lg:flex-row gap-4 items-end">
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Data inicial</label>
+                            {{ filter_form.date_from }}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Data final</label>
+                            {{ filter_form.date_to }}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Tipo</label>
+                            {{ filter_form.transaction_type }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col lg:flex-row gap-4 items-end">
+                    <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Conta</label>
+                            {{ filter_form.account }}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Categoria</label>
+                            {{ filter_form.category }}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Buscar</label>
+                            {{ filter_form.search }}
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button type="submit" class="btn-primary px-4 py-2 rounded-lg font-medium transition-colors">
+                            <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            Filtrar
+                        </button>
+                        
+                        <a href="{% url 'transactions:list' %}" class="btn-secondary px-4 py-2 rounded-lg font-medium transition-colors">
+                            Limpar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Transactions List -->
+        <div class="bg-dark-800/60 backdrop-blur-sm rounded-xl border border-dark-700">
+            <!-- Header -->
+            <div class="bg-dark-900/60 px-4 sm:px-6 py-4 border-b border-dark-700">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <h2 class="text-lg font-semibold text-white">
+                        {% if transactions %}
+                            {{ total_transactions }} Transaç{% if total_transactions != 1 %}ões{% else %}ão{% endif %}
+                            {% if has_filters %}
+                                <span class="text-sm text-blue-400 font-normal">(filtradas)</span>
+                            {% endif %}
+                        {% else %}
+                            Nenhuma transação encontrada
+                        {% endif %}
+                    </h2>
+                    
+                    <!-- Quick Add Button -->
+                    <button onclick="openQuickTransactionModal()" 
+                            class="btn-primary px-3 py-2 text-sm rounded-lg font-medium transition-all duration-200 hover:scale-105 sm:hidden">
+                        <svg class="w-4 h-4 mr-1 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Rápida
+                    </button>
+                </div>
+            </div>
+            
+            {% if transactions %}
+            <!-- Desktop Table View (hidden on mobile) -->
+            <div class="hidden lg:block overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-dark-900/40">
+                        <tr class="text-left">
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Descrição</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Categoria</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Conta</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider text-right">Valor</th>
+                            <th class="px-6 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dark-700">
+                        {% for transaction in transactions %}
+                        <tr class="transaction-row hover:bg-dark-700/30 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="text-white font-medium">
+                                    {{ transaction.transaction_date|date:"d/m/Y" }}
+                                </div>
+                                <div class="text-sm text-gray-400">
+                                    {{ transaction.transaction_date|date:"l" }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-financial flex items-center justify-center mr-3 category-icon">
+                                        <span class="text-sm">
+                                            {% if transaction.transaction_type == 'INCOME' %}📈{% else %}📉{% endif %}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'transactions:detail' transaction.pk %}" class="text-white font-medium hover:text-blue-400 transition-colors">
+                                            {{ transaction.description }}
+                                        </a>
+                                        {% if transaction.notes %}
+                                        <div class="text-sm text-gray-400">
+                                            {{ transaction.notes|truncatechars:50 }}
+                                        </div>
+                                        {% endif %}
+                                        {% if transaction.is_recurring %}
+                                        <div class="text-xs text-blue-400 mt-1">
+                                            <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                            </svg>
+                                            {{ transaction.get_recurrence_type_display }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full flex items-center justify-center mr-2" 
+                                         style="background-color: {{ transaction.category.color }}40; border: 1px solid {{ transaction.category.color }}">
+                                        <span class="text-xs">{{ transaction.category.icon }}</span>
+                                    </div>
+                                    <div>
+                                        <div class="text-white text-sm">{{ transaction.category.name }}</div>
+                                        {% if transaction.category.parent %}
+                                        <div class="text-xs text-gray-400">{{ transaction.category.parent.name }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-gray-300 text-sm">{{ transaction.account.name }}</div>
+                                <div class="text-xs text-gray-400">{{ transaction.account.get_account_type_display }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="font-semibold transaction-type-{{ transaction.transaction_type|lower }}">
+                                    {% if transaction.transaction_type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount_display }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex justify-center space-x-2">
+                                    <a href="{% url 'transactions:detail' transaction.pk %}" 
+                                       class="text-blue-400 hover:text-blue-300 transition-colors"
+                                       title="Ver detalhes">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </a>
+                                    
+                                    <a href="{% url 'transactions:update' transaction.pk %}" 
+                                       class="text-yellow-400 hover:text-yellow-300 transition-colors"
+                                       title="Editar transação">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </a>
+                                    
+                                    <a href="{% url 'transactions:delete' transaction.pk %}" 
+                                       class="text-red-400 hover:text-red-300 transition-colors"
+                                       title="Excluir transação">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Mobile Card View (visible on mobile and tablet) -->
+            <div class="lg:hidden divide-y divide-dark-700">
+                {% for transaction in transactions %}
+                <div class="p-4 hover:bg-dark-700/30 transition-colors">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-3 flex-1">
+                            <!-- Category Icon -->
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" 
+                                 style="background-color: {{ transaction.category.color }}20; border: 1px solid {{ transaction.category.color }}40">
+                                <span class="text-lg">{{ transaction.category.icon }}</span>
+                            </div>
+                            
+                            <!-- Transaction Info -->
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between mb-1">
+                                    <a href="{% url 'transactions:detail' transaction.pk %}" 
+                                       class="text-white font-medium hover:text-blue-400 transition-colors truncate">
+                                        {{ transaction.description }}
+                                    </a>
+                                    <div class="ml-2 text-right flex-shrink-0">
+                                        <div class="font-semibold transaction-type-{{ transaction.transaction_type|lower }}">
+                                            {% if transaction.transaction_type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount_display }}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between text-sm text-gray-400">
+                                    <div class="flex items-center space-x-2">
+                                        <span>{{ transaction.category.name }}</span>
+                                        <span class="w-1 h-1 rounded-full bg-gray-600"></span>
+                                        <span>{{ transaction.account.name }}</span>
+                                    </div>
+                                    <span>{{ transaction.transaction_date|date:"d/m/Y" }}</span>
+                                </div>
+                                
+                                {% if transaction.notes %}
+                                <div class="mt-1 text-sm text-gray-400 truncate">
+                                    {{ transaction.notes|truncatechars:60 }}
+                                </div>
+                                {% endif %}
+                                
+                                {% if transaction.is_recurring %}
+                                <div class="mt-1 text-xs text-blue-400">
+                                    <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    {{ transaction.get_recurrence_type_display }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons (Mobile) -->
+                    <div class="flex justify-end space-x-4 pt-2 border-t border-dark-700">
+                        <a href="{% url 'transactions:detail' transaction.pk %}" 
+                           class="text-blue-400 hover:text-blue-300 transition-colors text-sm flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            Ver
+                        </a>
+                        
+                        <a href="{% url 'transactions:update' transaction.pk %}" 
+                           class="text-yellow-400 hover:text-yellow-300 transition-colors text-sm flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Editar
+                        </a>
+                        
+                        <a href="{% url 'transactions:delete' transaction.pk %}" 
+                           class="text-red-400 hover:text-red-300 transition-colors text-sm flex items-center"
+                           onclick="return confirm('Tem certeza que deseja excluir esta transação?')">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Excluir
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <div class="w-24 h-24 bg-dark-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-4xl text-gray-500">💰</span>
+                </div>
+                <h3 class="text-lg font-medium text-gray-300 mb-2">Nenhuma transação encontrada</h3>
+                <p class="text-gray-500 mb-6">
+                    {% if has_filters %}
+                        Nenhuma transação corresponde aos filtros atuais. Tente ajustar os critérios de busca.
+                    {% else %}
+                        Comece criando sua primeira transação para controlar suas finanças.
+                    {% endif %}
+                </p>
+                {% if not has_filters %}
+                <a href="{% url 'transactions:create' %}" 
+                   class="btn-primary inline-flex items-center px-4 py-2 rounded-lg font-medium">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Criar primeira transação
+                </a>
+                {% else %}
+                <a href="{% url 'transactions:list' %}" 
+                   class="text-blue-400 hover:text-blue-300 font-medium">
+                    Limpar todos os filtros
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="mt-6 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?{% if request.GET %}{% for field, value in request.GET.items %}{% if value and field != 'page' %}{{ field }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ page_obj.previous_page_number }}" 
+                       class="px-3 py-2 text-sm text-gray-400 hover:text-white bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors">
+                        Anterior
+                    </a>
+                {% endif %}
+                
+                <span class="px-3 py-2 text-sm text-gray-300">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?{% if request.GET %}{% for field, value in request.GET.items %}{% if value and field != 'page' %}{{ field }}={{ value }}&{% endif %}{% endfor %}{% endif %}page={{ page_obj.next_page_number }}" 
+                       class="px-3 py-2 text-sm text-gray-400 hover:text-white bg-dark-800 hover:bg-dark-700 rounded-lg transition-colors">
+                        Próxima
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        
+        <!-- Quick Transaction Modal -->
+        <div id="quickTransactionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-dark-800 rounded-xl border border-dark-700 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between p-6 border-b border-dark-700">
+                        <h3 class="text-lg font-semibold text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Transação Rápida
+                        </h3>
+                        <button onclick="closeQuickTransactionModal()" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Modal Body -->
+                    <div class="p-6">
+                        <form id="quickTransactionForm" class="space-y-4">
+                            {% csrf_token %}
+                            
+                            <!-- Transaction Type Toggle -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" 
+                                        onclick="setQuickTransactionType('EXPENSE')"
+                                        id="quickExpenseBtn"
+                                        class="quick-type-btn quick-type-active flex items-center justify-center py-3 px-4 rounded-lg border-2 transition-all">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                    </svg>
+                                    Despesa
+                                </button>
+                                <button type="button" 
+                                        onclick="setQuickTransactionType('INCOME')"
+                                        id="quickIncomeBtn"
+                                        class="quick-type-btn flex items-center justify-center py-3 px-4 rounded-lg border-2 transition-all">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                                    </svg>
+                                    Receita
+                                </button>
+                            </div>
+                            
+                            <!-- Amount Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Valor *</label>
+                                <div class="relative">
+                                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-medium">R$</div>
+                                    <input type="text" 
+                                           id="quickAmount" 
+                                           name="amount"
+                                           class="form-input pl-10 pr-4 text-lg font-semibold"
+                                           placeholder="0,00"
+                                           required>
+                                </div>
+                                <div id="quickAmountError" class="text-red-400 text-sm mt-1 hidden"></div>
+                            </div>
+                            
+                            <!-- Description -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Descrição *</label>
+                                <input type="text" 
+                                       id="quickDescription" 
+                                       name="description"
+                                       class="form-input"
+                                       placeholder="Ex: Almoço, Salário, Combustível..."
+                                       required>
+                                <div id="quickDescriptionError" class="text-red-400 text-sm mt-1 hidden"></div>
+                            </div>
+                            
+                            <!-- Account -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Conta *</label>
+                                <select id="quickAccount" name="account" class="form-input" required>
+                                    <option value="">Selecione uma conta</option>
+                                </select>
+                                <div id="quickAccountError" class="text-red-400 text-sm mt-1 hidden"></div>
+                            </div>
+                            
+                            <!-- Category -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Categoria *</label>
+                                <select id="quickCategory" name="category" class="form-input" required>
+                                    <option value="">Selecione uma categoria</option>
+                                </select>
+                                <div id="quickCategoryError" class="text-red-400 text-sm mt-1 hidden"></div>
+                            </div>
+                            
+                            <!-- Date -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Data</label>
+                                <input type="date" 
+                                       id="quickDate" 
+                                       name="transaction_date"
+                                       class="form-input"
+                                       required>
+                            </div>
+                            
+                            <!-- Form Actions -->
+                            <div class="flex gap-3 pt-4">
+                                <button type="submit" 
+                                        id="quickSubmitBtn"
+                                        class="flex-1 btn-primary py-3 rounded-lg font-medium transition-all duration-200">
+                                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Salvar
+                                </button>
+                                <button type="button" 
+                                        onclick="closeQuickTransactionModal()"
+                                        class="px-4 py-3 text-gray-400 hover:text-white border border-gray-600 hover:border-gray-500 rounded-lg transition-colors">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Quick Transaction Modal Data
+let quickModalData = {
+    accounts: [],
+    categories: {
+        'INCOME': [],
+        'EXPENSE': []
+    },
+    currentType: 'EXPENSE'
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit filter form when selections change
+    const filterSelects = document.querySelectorAll('form[method="get"] select, form[method="get"] input[type="date"]');
+    filterSelects.forEach(input => {
+        input.addEventListener('change', function() {
+            setTimeout(() => {
+                this.form.submit();
+            }, 300);
+        });
+    });
+    
+    // Handle search input with debounce
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (this.value.length >= 3 || this.value.length === 0) {
+                    this.form.submit();
+                }
+            }, 500);
+        });
+    }
+    
+    // Initialize quick transaction modal
+    initializeQuickModal();
+});
+
+async function initializeQuickModal() {
+    try {
+        // Load accounts and categories data
+        await Promise.all([
+            loadAccountsData(),
+            loadCategoriesData()
+        ]);
+        
+        // Set default date to today
+        document.getElementById('quickDate').value = new Date().toISOString().split('T')[0];
+        
+        // Setup form validation
+        setupQuickFormValidation();
+        
+    } catch (error) {
+        console.error('Error initializing quick modal:', error);
+    }
+}
+
+async function loadAccountsData() {
+    // In a real application, you would fetch this from an API
+    // For now, we'll use a placeholder that can be populated by Django context
+    const accountsData = {{ accounts_json|default:"[]"|safe }};
+    quickModalData.accounts = accountsData;
+    
+    const accountSelect = document.getElementById('quickAccount');
+    accountSelect.innerHTML = '<option value="">Selecione uma conta</option>';
+    
+    accountsData.forEach(account => {
+        const option = document.createElement('option');
+        option.value = account.id;
+        option.textContent = account.name + ' - ' + account.type;
+        accountSelect.appendChild(option);
+    });
+}
+
+async function loadCategoriesData() {
+    try {
+        const response = await fetch('{% url "transactions:api_categories_by_type" %}');
+        const data = await response.json();
+        quickModalData.categories = data;
+        updateCategoryOptions();
+    } catch (error) {
+        console.error('Error loading categories:', error);
+        // Fallback to empty categories
+        quickModalData.categories = { 'INCOME': [], 'EXPENSE': [] };
+    }
+}
+
+function updateCategoryOptions() {
+    const categorySelect = document.getElementById('quickCategory');
+    const currentType = quickModalData.currentType;
+    
+    categorySelect.innerHTML = '<option value="">Selecione uma categoria</option>';
+    
+    if (quickModalData.categories[currentType]) {
+        quickModalData.categories[currentType].forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            option.dataset.icon = category.icon;
+            option.dataset.color = category.color;
+            categorySelect.appendChild(option);
+        });
+    }
+}
+
+function openQuickTransactionModal() {
+    const modal = document.getElementById('quickTransactionModal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus on amount input
+    setTimeout(() => {
+        document.getElementById('quickAmount').focus();
+    }, 100);
+}
+
+function closeQuickTransactionModal() {
+    const modal = document.getElementById('quickTransactionModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+    
+    // Reset form
+    document.getElementById('quickTransactionForm').reset();
+    clearValidationErrors();
+    
+    // Reset to default state
+    setQuickTransactionType('EXPENSE');
+    document.getElementById('quickDate').value = new Date().toISOString().split('T')[0];
+}
+
+function setQuickTransactionType(type) {
+    quickModalData.currentType = type;
+    
+    // Update button states
+    const expenseBtn = document.getElementById('quickExpenseBtn');
+    const incomeBtn = document.getElementById('quickIncomeBtn');
+    
+    expenseBtn.classList.remove('quick-type-active', 'expense');
+    incomeBtn.classList.remove('quick-type-active', 'income');
+    
+    if (type === 'EXPENSE') {
+        expenseBtn.classList.add('quick-type-active', 'expense');
+    } else {
+        incomeBtn.classList.add('quick-type-active', 'income');
+    }
+    
+    // Update categories
+    updateCategoryOptions();
+    
+    // Clear category selection
+    document.getElementById('quickCategory').value = '';
+}
+
+function setupQuickFormValidation() {
+    const form = document.getElementById('quickTransactionForm');
+    const amountInput = document.getElementById('quickAmount');
+    
+    // Format amount input
+    amountInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value) {
+            value = (parseFloat(value) / 100).toFixed(2).replace('.', ',');
+            e.target.value = value;
+        }
+    });
+    
+    amountInput.addEventListener('blur', function(e) {
+        if (e.target.value && !e.target.value.includes(',')) {
+            const numValue = parseFloat(e.target.value);
+            if (!isNaN(numValue)) {
+                e.target.value = numValue.toFixed(2).replace('.', ',');
+            }
+        }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', handleQuickFormSubmit);
+}
+
+async function handleQuickFormSubmit(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('quickSubmitBtn');
+    submitBtn.classList.add('btn-loading');
+    submitBtn.disabled = true;
+    
+    // Clear previous errors
+    clearValidationErrors();
+    
+    try {
+        // Validate form
+        if (!validateQuickForm()) {
+            throw new Error('Validation failed');
+        }
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        formData.append('transaction_type', quickModalData.currentType);
+        formData.append('amount', document.getElementById('quickAmount').value.replace(',', '.'));
+        formData.append('description', document.getElementById('quickDescription').value);
+        formData.append('account', document.getElementById('quickAccount').value);
+        formData.append('category', document.getElementById('quickCategory').value);
+        formData.append('transaction_date', document.getElementById('quickDate').value);
+        formData.append('is_quick_modal', 'true');
+        
+        // Submit via fetch
+        const response = await fetch('{% url "transactions:create" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            // Success - close modal and reload page
+            closeQuickTransactionModal();
+            window.location.reload();
+        } else {
+            // Handle errors
+            if (data.errors) {
+                displayValidationErrors(data.errors);
+            } else {
+                throw new Error(data.message || 'Erro ao salvar transação');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error submitting quick transaction:', error);
+        alert('Erro ao salvar transação. Tente novamente.');
+    } finally {
+        submitBtn.classList.remove('btn-loading');
+        submitBtn.disabled = false;
+    }
+}
+
+function validateQuickForm() {
+    let isValid = true;
+    
+    // Validate amount
+    const amount = document.getElementById('quickAmount').value;
+    if (!amount || parseFloat(amount.replace(',', '.')) <= 0) {
+        showFieldError('quickAmount', 'Por favor, insira um valor válido.');
+        isValid = false;
+    }
+    
+    // Validate description
+    const description = document.getElementById('quickDescription').value.trim();
+    if (!description) {
+        showFieldError('quickDescription', 'Por favor, insira uma descrição.');
+        isValid = false;
+    }
+    
+    // Validate account
+    const account = document.getElementById('quickAccount').value;
+    if (!account) {
+        showFieldError('quickAccount', 'Por favor, selecione uma conta.');
+        isValid = false;
+    }
+    
+    // Validate category
+    const category = document.getElementById('quickCategory').value;
+    if (!category) {
+        showFieldError('quickCategory', 'Por favor, selecione uma categoria.');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function showFieldError(fieldId, message) {
+    const errorDiv = document.getElementById(fieldId + 'Error');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+}
+
+function clearValidationErrors() {
+    const errorDivs = document.querySelectorAll('[id$="Error"]');
+    errorDivs.forEach(div => {
+        div.textContent = '';
+        div.classList.add('hidden');
+    });
+}
+
+function displayValidationErrors(errors) {
+    Object.keys(errors).forEach(field => {
+        const fieldId = 'quick' + field.charAt(0).toUpperCase() + field.slice(1);
+        if (errors[field] && errors[field].length > 0) {
+            showFieldError(fieldId, errors[field][0]);
+        }
+    });
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('quickTransactionModal');
+    if (e.target === modal) {
+        closeQuickTransactionModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('quickTransactionModal');
+        if (!modal.classList.contains('hidden')) {
+            closeQuickTransactionModal();
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -360,6 +360,28 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         
+        # Import models to get statistics
+        from accounts.models import Account
+        from transactions.models import Transaction
+        from categories.models import Category
+        from django.utils import timezone
+        from datetime import date
+        
+        # Calculate user statistics
+        accounts_count = Account.objects.filter(user=user, is_active=True).count()
+        
+        # Get transactions for current month
+        current_month = date.today().month
+        current_year = date.today().year
+        monthly_transactions = Transaction.objects.filter(
+            user=user,
+            transaction_date__year=current_year,
+            transaction_date__month=current_month
+        ).count()
+        
+        # Get categories count
+        categories_count = Category.objects.filter(user=user, is_active=True).count()
+        
         # Add user profile data
         context.update({
             'user': user,
@@ -370,6 +392,12 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                 'date_joined': user.date_joined,
                 'last_login': user.last_login,
                 'is_staff': user.is_staff,
+                'updated_at': user.date_joined,  # For now use date_joined as updated_at
+            },
+            'stats': {
+                'accounts_count': accounts_count,
+                'monthly_transactions': monthly_transactions,
+                'categories_count': categories_count,
             }
         })
         

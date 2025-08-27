@@ -1,0 +1,679 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ transaction.description }} - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .detail-card {
+        background: rgba(31, 41, 55, 0.85);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(71, 85, 105, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .detail-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        background: rgba(31, 41, 55, 0.9);
+    }
+    
+    .detail-row {
+        border-bottom: 1px solid rgba(71, 85, 105, 0.2);
+        padding: 1rem 0;
+    }
+    
+    .detail-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .detail-row:first-child {
+        padding-top: 0;
+    }
+    
+    .detail-label {
+        font-weight: 500;
+        color: #9CA3AF;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+        color: #F9FAFB;
+        font-size: 1rem;
+    }
+    
+    .transaction-type-income {
+        color: #10B981 !important;
+    }
+    
+    .transaction-type-expense {
+        color: #EF4444 !important;
+    }
+    
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .category-badge:hover {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .account-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        background: rgba(59, 130, 246, 0.15);
+        color: #93C5FD;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    
+    .account-badge:hover {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+        background: rgba(59, 130, 246, 0.2);
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.875rem 2rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+    }
+    
+    .action-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .action-button:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.25);
+    }
+    
+    .action-button:hover::before {
+        left: 100%;
+    }
+    
+    .history-timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    .history-timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.75rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, #3B82F6, #1E40AF);
+    }
+    
+    .history-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: rgba(31, 41, 55, 0.6);
+        border-radius: 0.5rem;
+        border: 1px solid rgba(71, 85, 105, 0.3);
+    }
+    
+    .history-item::before {
+        content: '';
+        position: absolute;
+        left: -1.625rem;
+        top: 1.25rem;
+        width: 0.5rem;
+        height: 0.5rem;
+        background: #3B82F6;
+        border-radius: 50%;
+        border: 2px solid #111827;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <nav class="flex items-center space-x-2 text-sm text-gray-400 mb-2">
+                        <a href="{% url 'transactions:list' %}" class="hover:text-white transition-colors">Transações</a>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                        <span class="text-white">{{ transaction.description|truncatechars:30 }}</span>
+                    </nav>
+                    
+                    <h1 class="text-3xl font-bold text-white mb-2">
+                        <span class="text-2xl mr-2">
+                            {% if transaction.transaction_type == 'INCOME' %}📈{% else %}📉{% endif %}
+                        </span>
+                        {{ transaction.description }}
+                    </h1>
+                    <p class="text-gray-300">
+                        Detalhes da transação de {{ transaction.get_transaction_type_display|lower }}
+                    </p>
+                </div>
+                
+                <!-- Enhanced Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'transactions:update' transaction.pk %}" 
+                       class="action-button bg-gradient-to-r from-yellow-600 to-yellow-700 hover:from-yellow-700 hover:to-yellow-800 text-white shadow-xl hover:shadow-yellow-600/30">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Editar Transação
+                    </a>
+                    <button onclick="confirmDelete()" 
+                            class="action-button bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-xl hover:shadow-red-600/30">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Excluir Transação
+                    </button>
+                    <a href="{% url 'transactions:list' %}" 
+                       class="action-button bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white shadow-xl hover:shadow-gray-600/30">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                        Voltar à Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Transaction Value Card (Mobile-First) -->
+        <div class="detail-card rounded-2xl p-8 mb-8 lg:hidden">
+            <div class="text-center">
+                <div class="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-2xl"
+                     style="background: linear-gradient(135deg, {{ transaction.category.color }}30, {{ transaction.category.color }}60); border: 3px solid {{ transaction.category.color }}50">
+                    <span class="text-3xl filter drop-shadow-lg">{{ transaction.category.icon }}</span>
+                </div>
+                <div class="relative">
+                    <div class="text-4xl font-black transaction-type-{{ transaction.transaction_type|lower }} mb-3 tracking-tight">
+                        {% if transaction.transaction_type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount_display }}
+                    </div>
+                    <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full {% if transaction.transaction_type == 'INCOME' %}bg-success-500{% else %}bg-danger-500{% endif %} animate-pulse"></div>
+                </div>
+                <div class="inline-flex items-center space-x-3 text-gray-300 mb-4">
+                    <span class="inline-flex items-center px-3 py-1 {% if transaction.transaction_type == 'INCOME' %}bg-success-900/30 border border-success-800/50 text-success-400{% else %}bg-danger-900/30 border border-danger-800/50 text-danger-400{% endif %} rounded-full text-sm font-medium">
+                        {{ transaction.get_transaction_type_display }}
+                    </span>
+                    <span class="text-gray-500">•</span>
+                    <span class="font-medium">{{ transaction.transaction_date|date:"d/m/Y" }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Main Details -->
+            <div class="lg:col-span-2">
+                <div class="detail-card rounded-xl p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-white mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Informações da Transação
+                    </h2>
+                    
+                    <!-- Enhanced Desktop Value Display -->
+                    <div class="hidden lg:grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="detail-row">
+                            <div class="detail-label mb-3">Tipo de Transação</div>
+                            <div class="detail-value">
+                                <div class="inline-flex items-center px-4 py-3 {% if transaction.transaction_type == 'INCOME' %}bg-success-900/20 border-2 border-success-800/40{% else %}bg-danger-900/20 border-2 border-danger-800/40{% endif %} rounded-xl">
+                                    <div class="w-3 h-3 rounded-full mr-3 {% if transaction.transaction_type == 'INCOME' %}bg-success-400 shadow-success-400/50{% else %}bg-danger-400 shadow-danger-400/50{% endif %} shadow-lg animate-pulse"></div>
+                                    <span class="text-lg font-semibold {% if transaction.transaction_type == 'INCOME' %}text-success-400{% else %}text-danger-400{% endif %}">
+                                        {{ transaction.get_transaction_type_display }}
+                                    </span>
+                                    <svg class="w-5 h-5 ml-3 {% if transaction.transaction_type == 'INCOME' %}text-success-400{% else %}text-danger-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        {% if transaction.transaction_type == 'INCOME' %}
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                                        {% else %}
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                        {% endif %}
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label mb-3">Valor da Transação</div>
+                            <div class="detail-value relative">
+                                <div class="inline-flex items-center">
+                                    <span class="text-4xl font-black transaction-type-{{ transaction.transaction_type|lower }} tracking-tight">
+                                        {% if transaction.transaction_type == 'INCOME' %}+{% else %}-{% endif %}{{ transaction.amount_display }}
+                                    </span>
+                                    <div class="ml-3 w-4 h-4 rounded-full {% if transaction.transaction_type == 'INCOME' %}bg-success-500{% else %}bg-danger-500{% endif %} animate-pulse shadow-lg"></div>
+                                </div>
+                                <div class="text-sm text-gray-500 mt-2">
+                                    {% if transaction.transaction_type == 'INCOME' %}
+                                        Receita registrada em {{ transaction.transaction_date|date:"d/m/Y" }}
+                                    {% else %}
+                                        Despesa registrada em {{ transaction.transaction_date|date:"d/m/Y" }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div class="detail-row">
+                            <div class="detail-label">Data da Transação</div>
+                            <div class="detail-value">
+                                <div class="flex flex-col sm:flex-row sm:items-center">
+                                    <div class="flex items-center mb-1 sm:mb-0">
+                                        <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <span class="font-medium">{{ transaction.transaction_date|date:"d/m/Y" }}</span>
+                                        <span class="ml-2 text-sm text-gray-400 hidden sm:inline">
+                                            ({{ transaction.transaction_date|date:"l" }})
+                                        </span>
+                                    </div>
+                                    <div class="text-xs text-gray-400 sm:ml-auto">
+                                        {% if transaction.is_today %}
+                                        <span class="bg-blue-900/30 text-blue-400 px-2 py-1 rounded-full border border-blue-800/50">Hoje</span>
+                                        {% elif transaction.days_ago == 1 %}
+                                        <span class="bg-gray-800/50 text-gray-400 px-2 py-1 rounded-full border border-gray-700/50">Ontem</span>
+                                        {% elif transaction.days_ago > 1 %}
+                                        <span class="bg-gray-800/50 text-gray-400 px-2 py-1 rounded-full border border-gray-700/50">{{ transaction.days_ago }} dias atrás</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-400 mt-2 sm:hidden">
+                                    {{ transaction.transaction_date|date:"l" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label mb-3">Categoria</div>
+                            <div class="detail-value">
+                                <div class="category-badge group" style="background: linear-gradient(135deg, {{ transaction.category.color }}20, {{ transaction.category.color }}40); border: 2px solid {{ transaction.category.color }}50;">
+                                    <div class="w-14 h-14 rounded-xl flex items-center justify-center mr-4 flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300" 
+                                         style="background: linear-gradient(135deg, {{ transaction.category.color }}40, {{ transaction.category.color }}70); border: 2px solid {{ transaction.category.color }}80">
+                                        <span class="text-2xl filter drop-shadow-sm">{{ transaction.category.icon }}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-white text-lg mb-1">{{ transaction.category.name }}</div>
+                                        {% if transaction.category.parent %}
+                                        <div class="text-sm text-gray-300 mb-1 flex items-center">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                            {{ transaction.category.parent.name }}
+                                        </div>
+                                        {% endif %}
+                                        <div class="inline-flex items-center px-2 py-1 {% if transaction.transaction_type == 'INCOME' %}bg-success-900/40 border border-success-700/60 text-success-300{% else %}bg-danger-900/40 border border-danger-700/60 text-danger-300{% endif %} rounded-full text-xs font-medium">
+                                            {{ transaction.get_transaction_type_display }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label mb-3">Conta</div>
+                            <div class="detail-value">
+                                <div class="account-badge group">
+                                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-700/40 to-primary-900/60 border-2 border-primary-600/50 flex items-center justify-center mr-4 flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                        <svg class="w-6 h-6 text-primary-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {% if transaction.account.account_type == 'checking' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                            {% elif transaction.account.account_type == 'savings' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                            {% elif transaction.account.account_type == 'credit_card' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                            {% elif transaction.account.account_type == 'investment' %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                            {% else %}
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                            {% endif %}
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-white text-lg mb-1">{{ transaction.account.name }}</div>
+                                        <div class="text-sm text-gray-300 mb-2 flex items-center">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                            </svg>
+                                            {{ transaction.account.get_account_type_display }}
+                                        </div>
+                                        <div class="inline-flex items-center px-3 py-1 bg-primary-900/30 border border-primary-700/50 rounded-full text-sm font-medium text-primary-300">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                            </svg>
+                                            Saldo: {{ transaction.account.balance_display }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if transaction.is_recurring %}
+                        <div class="detail-row">
+                            <div class="detail-label">Recorrência</div>
+                            <div class="detail-value">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 rounded-lg bg-blue-900/30 border border-blue-700/50 flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span class="status-badge bg-blue-900/20 text-blue-400 border border-blue-800">
+                                            {{ transaction.get_recurrence_type_display }}
+                                        </span>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            Transação recorrente ativa
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if transaction.notes %}
+                    <div class="detail-row mt-8 lg:col-span-2">
+                        <div class="detail-label mb-4">Observações</div>
+                        <div class="detail-value">
+                            <div class="bg-gradient-to-br from-dark-900/60 to-dark-800/80 rounded-xl p-6 border-2 border-dark-600/50 backdrop-blur-sm hover:border-dark-500/60 transition-all duration-300">
+                                <div class="flex items-start">
+                                    <div class="w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-white font-semibold mb-2">Observações da Transação</h4>
+                                        <p class="text-gray-200 whitespace-pre-wrap leading-relaxed text-sm">{{ transaction.notes }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Enhanced Quick Stats -->
+                <div class="detail-card rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        Informações Rápidas
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gradient-to-r from-dark-900/50 to-dark-800/60 rounded-xl p-4 border border-dark-700/50 hover:border-dark-600/60 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">ID da Transação</div>
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            </div>
+                            <div class="text-white font-mono font-bold text-lg">#{{ transaction.id }}</div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-dark-900/50 to-dark-800/60 rounded-xl p-4 border border-dark-700/50 hover:border-dark-600/60 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Criada em</div>
+                                <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="text-white font-semibold">{{ transaction.created_at|date:"d/m/Y" }}</div>
+                            <div class="text-gray-400 text-sm mt-1">às {{ transaction.created_at|date:"H:i" }}</div>
+                        </div>
+                        
+                        {% if transaction.updated_at != transaction.created_at %}
+                        <div class="bg-gradient-to-r from-dark-900/50 to-dark-800/60 rounded-xl p-4 border border-dark-700/50 hover:border-dark-600/60 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="text-xs text-gray-400 uppercase tracking-wider font-semibold">Última atualização</div>
+                                <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </div>
+                            <div class="text-white font-semibold">{{ transaction.updated_at|date:"d/m/Y" }}</div>
+                            <div class="text-gray-400 text-sm mt-1">às {{ transaction.updated_at|date:"H:i" }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="bg-gradient-to-r from-primary-900/30 to-primary-800/40 rounded-xl p-4 border border-primary-700/50 hover:border-primary-600/60 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="text-xs text-primary-300 uppercase tracking-wider font-semibold">Saldo da Conta</div>
+                                <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <div class="text-primary-200 font-bold text-lg">{{ transaction.account.balance_display }}</div>
+                            <div class="text-primary-400 text-sm mt-1">Saldo atual da conta</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Related Actions -->
+                <div class="detail-card rounded-2xl p-6">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center mr-3">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                            </svg>
+                        </div>
+                        Ações Relacionadas
+                    </h3>
+                    
+                    <div class="space-y-2">
+                        <a href="{% url 'transactions:list' %}?account={{ transaction.account.pk }}" 
+                           class="flex items-center p-3 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-all text-sm group">
+                            <div class="w-8 h-8 rounded-lg bg-blue-900/30 flex items-center justify-center mr-3 group-hover:bg-blue-800/40 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium">Ver transações desta conta</div>
+                                <div class="text-xs text-gray-500">{{ transaction.account.name }}</div>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'transactions:list' %}?category={{ transaction.category.pk }}" 
+                           class="flex items-center p-3 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-all text-sm group">
+                            <div class="w-8 h-8 rounded-lg bg-blue-900/30 flex items-center justify-center mr-3 group-hover:bg-blue-800/40 transition-colors">
+                                <span class="text-sm">{{ transaction.category.icon }}</span>
+                            </div>
+                            <div>
+                                <div class="font-medium">Ver transações desta categoria</div>
+                                <div class="text-xs text-gray-500">{{ transaction.category.name }}</div>
+                            </div>
+                        </a>
+                        
+                        <a href="{% url 'transactions:list' %}?transaction_type={{ transaction.transaction_type }}" 
+                           class="flex items-center p-3 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-all text-sm group">
+                            <div class="w-8 h-8 rounded-lg bg-blue-900/30 flex items-center justify-center mr-3 group-hover:bg-blue-800/40 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    {% if transaction.transaction_type == 'INCOME' %}
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                                    {% else %}
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                                    {% endif %}
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-medium">Ver todas as {{ transaction.get_transaction_type_display|lower }}s</div>
+                                <div class="text-xs text-gray-500">Filtrar por tipo</div>
+                            </div>
+                        </a>
+                        
+                        <hr class="border-dark-600 my-3">
+                        
+                        <a href="{% url 'transactions:create' %}?copy={{ transaction.pk }}" 
+                           class="flex items-center p-4 text-green-400 hover:text-green-300 hover:bg-gradient-to-r from-green-900/20 to-green-800/30 rounded-xl transition-all text-sm group border border-green-800/20 hover:border-green-700/40">
+                            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-800/40 to-green-900/60 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-semibold mb-1">Nova transação similar</div>
+                                <div class="text-xs text-gray-400">Criar com os mesmos dados desta transação</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced smooth scroll for internal links
+    const internalLinks = document.querySelectorAll('a[href^="#"]');
+    internalLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Enhanced card animations
+    const cards = document.querySelectorAll('.detail-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px) scale(1.01)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Animated badges
+    const badges = document.querySelectorAll('.category-badge, .account-badge');
+    badges.forEach(badge => {
+        badge.addEventListener('mouseenter', function() {
+            const icon = this.querySelector('.w-14, .w-12, .w-10');
+            if (icon) {
+                icon.style.transform = 'scale(1.1) rotate(5deg)';
+            }
+        });
+        
+        badge.addEventListener('mouseleave', function() {
+            const icon = this.querySelector('.w-14, .w-12, .w-10');
+            if (icon) {
+                icon.style.transform = 'scale(1) rotate(0deg)';
+            }
+        });
+    });
+    
+    // Enhanced delete confirmation
+    window.confirmDelete = function() {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4';
+        modal.innerHTML = `
+            <div class="bg-dark-800 rounded-2xl border border-dark-700 max-w-md w-full p-6 transform scale-95 opacity-0 transition-all duration-300">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-600/20 rounded-xl flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Excluir Transação</h3>
+                </div>
+                <p class="text-gray-300 mb-6 leading-relaxed">
+                    Tem certeza que deseja excluir a transação <strong>"{{ transaction.description }}"</strong>?
+                    <br><br>
+                    <span class="text-red-400 font-medium">Esta ação não pode ser desfeita e afetará o saldo da sua conta.</span>
+                </p>
+                <div class="flex gap-3">
+                    <button onclick="window.location.href='{% url 'transactions:delete' transaction.pk %}'" 
+                            class="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 px-4 rounded-xl font-semibold transition-all duration-300">
+                        Sim, Excluir
+                    </button>
+                    <button onclick="this.closest('.fixed').remove()" 
+                            class="px-6 py-3 text-gray-400 hover:text-white border border-gray-600 hover:border-gray-500 hover:bg-dark-700/50 rounded-xl transition-all duration-300 font-semibold">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        requestAnimationFrame(() => {
+            const content = modal.querySelector('.bg-dark-800');
+            content.style.opacity = '1';
+            content.style.transform = 'scale(1)';
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                const content = modal.querySelector('.bg-dark-800');
+                content.style.opacity = '0';
+                content.style.transform = 'scale(0.95)';
+                setTimeout(() => modal.remove(), 300);
+            }
+        });
+        
+        return false;
+    };
+});
+</script>
+{% endblock %}

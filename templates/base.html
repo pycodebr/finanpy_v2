@@ -189,7 +189,7 @@
                             <a href="{% url 'users:dashboard' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Dashboard</a>
                             <a href="{% url 'accounts:account-list' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Contas</a>
                             <a href="{% url 'categories:category-list' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Categorias</a>
-                            <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Transações</a>
+                            <a href="{% url 'transactions:list' %}" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Transações</a>
                             <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Orçamentos</a>
                             <a href="#" class="text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Metas</a>
                         {% else %}
@@ -273,7 +273,7 @@
                     <a href="{% url 'users:dashboard' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Dashboard</a>
                     <a href="{% url 'accounts:account-list' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Contas</a>
                     <a href="{% url 'categories:category-list' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Categorias</a>
-                    <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Transações</a>
+                    <a href="{% url 'transactions:list' %}" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Transações</a>
                     <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Orçamentos</a>
                     <a href="#" class="block text-gray-300 hover:text-white hover:bg-dark-700 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Metas</a>
                     <hr class="border-dark-600 my-4">

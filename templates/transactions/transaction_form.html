@@ -1,0 +1,845 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ form_title }} - FinanPy{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-group {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #E5E7EB;
+        margin-bottom: 0.75rem;
+        transition: color 0.2s ease;
+    }
+    
+    .form-label.required::after {
+        content: " *";
+        color: #EF4444;
+        font-weight: bold;
+    }
+    
+    .form-group:focus-within .form-label {
+        color: #60A5FA;
+    }
+    
+    .form-help {
+        font-size: 0.75rem;
+        color: #9CA3AF;
+        margin-top: 0.25rem;
+    }
+    
+    .form-error {
+        color: #EF4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-success {
+        color: #10B981;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    
+    .form-input, .form-select, .form-textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #374151;
+        border-radius: 0.75rem;
+        background-color: #1F2937;
+        color: #F9FAFB;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(8px);
+    }
+    
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #3B82F6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15), 0 8px 25px rgba(59, 130, 246, 0.1);
+        background-color: #111827;
+        transform: translateY(-2px);
+    }
+    
+    .form-input:hover, .form-select:hover, .form-textarea:hover {
+        border-color: #4B5563;
+    }
+    
+    .form-checkbox {
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid #374151;
+        border-radius: 0.25rem;
+        background-color: #1F2937;
+        cursor: pointer;
+    }
+    
+    .form-checkbox:checked {
+        background-color: #3B82F6;
+        border-color: #3B82F6;
+    }
+    
+    .currency-input {
+        position: relative;
+    }
+    
+    .currency-input::before {
+        content: 'R$';
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9CA3AF;
+        font-weight: 700;
+        font-size: 1.1rem;
+        pointer-events: none;
+        z-index: 10;
+        transition: color 0.3s ease;
+    }
+    
+    .currency-input input {
+        padding-left: 3rem;
+        text-align: right;
+        font-weight: 700;
+        font-size: 1.25rem;
+        letter-spacing: -0.025em;
+    }
+    
+    .currency-input:focus-within::before {
+        color: #60A5FA;
+    }
+    
+    
+    .category-preview {
+        display: flex;
+        align-items: center;
+        margin-top: 0.75rem;
+        padding: 1rem;
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 0.75rem;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateY(-10px);
+        backdrop-filter: blur(8px);
+    }
+    
+    .category-preview.show {
+        opacity: 1;
+        transform: translateY(0);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    
+    .category-preview .icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .category-preview:hover .icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+    
+    .category-preview .name {
+        font-weight: 600;
+        color: #E5E7EB;
+        font-size: 1rem;
+    }
+    
+    /* Form enhancements */
+    .form-card {
+        background: rgba(31, 41, 55, 0.85);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(71, 85, 105, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .form-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+    
+    .form-actions {
+        border-top: 1px solid rgba(71, 85, 105, 0.3);
+        background: rgba(15, 23, 42, 0.5);
+        padding: 2rem;
+        margin: 0 -2rem -2rem -2rem;
+        border-radius: 0 0 1rem 1rem;
+    }
+    
+    .btn-primary-enhanced {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
+    
+    .btn-primary-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.6s ease;
+    }
+    
+    .btn-primary-enhanced:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 20px 25px rgba(59, 130, 246, 0.5);
+    }
+    
+    .btn-primary-enhanced:hover::before {
+        left: 100%;
+    }
+    
+    .btn-secondary-enhanced {
+        background: rgba(31, 41, 55, 0.8);
+        border: 2px solid #374151;
+        color: #D1D5DB;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(8px);
+    }
+    
+    .btn-secondary-enhanced:hover {
+        transform: translateY(-2px);
+        border-color: #4B5563;
+        background: rgba(55, 65, 81, 0.9);
+        color: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-financial-dark">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">
+                        <span class="text-2xl mr-2">{% if form_action == 'Criar' %}💰{% else %}✏️{% endif %}</span>
+                        {{ form_title }}
+                    </h1>
+                    <p class="text-gray-300">
+                        {% if form_action == 'Criar' %}
+                            Registre uma nova receita ou despesa
+                        {% else %}
+                            Edite os detalhes da transação
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <a href="{% url 'transactions:list' %}" 
+                   class="text-gray-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Enhanced Form Card -->
+        <div class="form-card rounded-2xl p-8 shadow-2xl">
+            <form method="post" id="transaction-form" novalidate>
+                {% csrf_token %}
+                
+                <!-- Enhanced Form Errors -->
+                {% if form.non_field_errors %}
+                <div class="bg-gradient-to-r from-red-900/30 to-red-800/40 border-2 border-red-700/50 rounded-xl p-6 mb-8 backdrop-blur-sm">
+                    <div class="flex items-start">
+                        <div class="w-12 h-12 bg-red-600/20 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+                            <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-red-300 font-semibold mb-2">Erros no Formulário</h4>
+                            {% for error in form.non_field_errors %}
+                                <p class="text-red-200 text-sm leading-relaxed">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Transaction Type -->
+                    <div class="form-group">
+                        <label for="{{ form.transaction_type.id_for_label }}" class="form-label required">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                            </svg>
+                            Tipo de Transação
+                        </label>
+                        {{ form.transaction_type }}
+                        {% if form.transaction_type.errors %}
+                            <div class="mt-2 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                                {% for error in form.transaction_type.errors %}
+                                    <div class="text-red-400 text-sm flex items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="text-sm text-gray-400 mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Selecione se é uma receita ou despesa
+                        </div>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label for="{{ form.amount.id_for_label }}" class="form-label required">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                            Valor
+                        </label>
+                        <div class="currency-input">
+                            {{ form.amount }}
+                        </div>
+                        {% if form.amount.errors %}
+                            <div class="mt-2 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                                {% for error in form.amount.errors %}
+                                    <div class="text-red-400 text-sm flex items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="text-sm text-gray-400 mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Digite o valor da transação
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Account -->
+                    <div class="form-group">
+                        <label for="{{ form.account.id_for_label }}" class="form-label required">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            Conta
+                        </label>
+                        {{ form.account }}
+                        {% if form.account.errors %}
+                            <div class="mt-2 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                                {% for error in form.account.errors %}
+                                    <div class="text-red-400 text-sm flex items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="text-sm text-gray-400 mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Conta onde a transação foi realizada
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label for="{{ form.category.id_for_label }}" class="form-label required">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                            </svg>
+                            Categoria
+                        </label>
+                        {{ form.category }}
+                        <div id="category-preview" class="category-preview mt-2">
+                            <div class="icon"></div>
+                            <div class="name"></div>
+                        </div>
+                        {% if form.category.errors %}
+                            <div class="mt-2 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                                {% for error in form.category.errors %}
+                                    <div class="text-red-400 text-sm flex items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="text-sm text-gray-400 mt-1 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Categoria para organização da transação
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}" class="form-label required">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                        </svg>
+                        Descrição
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <div class="mt-2 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                            {% for error in form.description.errors %}
+                                <div class="text-red-400 text-sm flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="text-sm text-gray-400 mt-2 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Descrição breve da transação
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Transaction Date -->
+                    <div class="form-group">
+                        <label for="{{ form.transaction_date.id_for_label }}" class="form-label required">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Data da Transação
+                        </label>
+                        {{ form.transaction_date }}
+                        {% if form.transaction_date.errors %}
+                            <div class="mt-2 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                                {% for error in form.transaction_date.errors %}
+                                    <div class="text-red-400 text-sm flex items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="text-sm text-gray-400 mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Data em que a transação foi realizada
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Observações
+                        </label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="mt-2 p-3 bg-red-900/20 border border-red-800/50 rounded-lg">
+                                {% for error in form.notes.errors %}
+                                    <div class="text-red-400 text-sm flex items-center">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="text-sm text-gray-400 mt-2 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Observações adicionais (opcional)
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Enhanced Form Actions -->
+                <div class="form-actions">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button type="submit" class="btn-primary-enhanced flex-1 sm:flex-initial inline-flex items-center justify-center">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            {{ form_action }} Transação
+                        </button>
+                        
+                        <a href="{% url 'transactions:list' %}" 
+                           class="btn-secondary-enhanced text-center flex-1 sm:flex-initial inline-flex items-center justify-center text-decoration-none">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Cancelar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Categories data from Django context (for backward compatibility)
+const categoriesData = {{ categories_json|safe }};
+
+// Make categories data available to TransactionManager
+window.categoriesData = categoriesData;
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced form initialization with new JavaScript architecture
+    initializeEnhancedTransactionForm();
+    
+    // Backward compatibility - ensure existing functionality works
+    const transactionTypeSelect = document.getElementById('id_transaction_type');
+    const categorySelect = document.getElementById('id_category');
+    const categoryPreview = document.getElementById('category-preview');
+    const amountInput = document.getElementById('id_amount');
+
+    // Initialize legacy handlers for immediate compatibility
+    if (transactionTypeSelect) {
+        // Initial filter on page load
+        setTimeout(() => {
+            if (window.transactionManager) {
+                window.transactionManager.updateCategoriesForType(transactionTypeSelect.value);
+            }
+        }, 100);
+    }
+
+    if (categorySelect) {
+        // Initial preview on page load
+        setTimeout(() => {
+            if (window.transactionManager) {
+                window.transactionManager.updateCategoryPreview(categorySelect);
+            }
+        }, 100);
+    }
+
+
+    // Enhanced form validation
+    const form = document.getElementById('transaction-form');
+    if (form) {
+        // Real-time validation
+        setupRealTimeValidation(form);
+        
+        // Enhanced form submission
+        form.addEventListener('submit', function(e) {
+            // Use enhanced form validator
+            if (window.FormValidator) {
+                const validation = window.FormValidator.validateTransactionForm(form);
+                if (!validation.isValid) {
+                    e.preventDefault();
+                    window.FormValidator.showValidationErrors(form, validation.errors);
+                    window.toastManager?.error('Por favor, corrija os erros no formulário.');
+                    return false;
+                }
+            }
+            
+            // Prepare form data using enhanced utilities
+            if (window.transactionManager) {
+                window.transactionManager.prepareMainFormSubmission(form);
+            }
+        });
+    }
+});
+
+function initializeEnhancedTransactionForm() {
+    // Add enhanced CSS classes for better JavaScript targeting
+    const form = document.getElementById('transaction-form');
+    if (form) {
+        form.classList.add('enhanced-transaction-form');
+        
+        // Add data attributes for better JavaScript integration
+        const transactionRows = form.querySelectorAll('.form-group');
+        transactionRows.forEach((row, index) => {
+            row.setAttribute('data-form-group', index);
+        });
+    }
+    
+    // Initialize keyboard navigation
+    setupKeyboardNavigation();
+    
+    // Initialize tooltips and help text
+    initializeTooltips();
+    
+    // Setup form auto-save (draft functionality)
+    setupAutoSave();
+}
+
+function setupRealTimeValidation(form) {
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateSingleField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            // Clear previous errors on input
+            clearFieldError(this);
+        });
+    });
+}
+
+function validateSingleField(field) {
+    if (!window.FormValidator) return;
+    
+    const fieldName = field.name;
+    const value = field.value;
+    
+    // Individual field validation
+    let isValid = true;
+    let errorMessage = '';
+    
+    switch (fieldName) {
+        case 'amount':
+            if (window.CurrencyFormatter) {
+                const amount = window.CurrencyFormatter.parseBrazilianNumber(value);
+                if (amount <= 0) {
+                    isValid = false;
+                    errorMessage = 'Por favor, insira um valor maior que zero.';
+                }
+            }
+            break;
+        case 'description':
+            if (!value.trim()) {
+                isValid = false;
+                errorMessage = 'Por favor, insira uma descrição.';
+            }
+            break;
+        case 'account':
+        case 'category':
+            if (!value) {
+                isValid = false;
+                errorMessage = 'Por favor, selecione uma opção.';
+            }
+            break;
+        case 'transaction_date':
+            if (!value) {
+                isValid = false;
+                errorMessage = 'Por favor, selecione a data da transação.';
+            }
+            break;
+    }
+    
+    if (!isValid) {
+        showFieldError(field, errorMessage);
+    }
+}
+
+function showFieldError(field, message) {
+    clearFieldError(field);
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'form-error text-red-400 text-sm mt-2';
+    errorDiv.textContent = message;
+    errorDiv.setAttribute('data-error-for', field.name);
+    
+    field.classList.add('border-red-500', 'error');
+    field.parentNode.appendChild(errorDiv);
+}
+
+function clearFieldError(field) {
+    field.classList.remove('border-red-500', 'error');
+    const existingError = field.parentNode.querySelector(`[data-error-for="${field.name}"]`);
+    if (existingError) {
+        existingError.remove();
+    }
+}
+
+function setupKeyboardNavigation() {
+    const form = document.getElementById('transaction-form');
+    if (!form) return;
+    
+    const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener('keydown', function(e) {
+            // Tab navigation enhancement
+            if (e.key === 'Enter' && !e.shiftKey && this.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                const nextInput = inputs[index + 1];
+                if (nextInput) {
+                    nextInput.focus();
+                } else {
+                    // Focus submit button
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) submitBtn.focus();
+                }
+            }
+        });
+    });
+}
+
+function initializeTooltips() {
+    // Add enhanced tooltips for form fields
+    const fieldMappings = {
+        'id_transaction_type': 'Selecione se é uma receita (dinheiro que entra) ou despesa (dinheiro que sai)',
+        'id_amount': 'Digite o valor em reais (R$). Use vírgula para os centavos',
+        'id_account': 'Escolha a conta bancária onde a transação foi realizada',
+        'id_category': 'Selecione a categoria que melhor classifica esta transação',
+        'id_description': 'Descrição clara e concisa da transação (ex: Almoço no restaurante)',
+        'id_transaction_date': 'Data em que a transação realmente ocorreu',
+        'id_notes': 'Informações adicionais sobre a transação (opcional)',
+    };
+    
+    Object.keys(fieldMappings).forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.setAttribute('title', fieldMappings[fieldId]);
+            field.setAttribute('data-tooltip', fieldMappings[fieldId]);
+        }
+    });
+}
+
+function setupAutoSave() {
+    // Auto-save form data to localStorage for draft functionality
+    const form = document.getElementById('transaction-form');
+    if (!form) return;
+    
+    const saveKey = `transaction-draft-${Date.now()}`;
+    let saveTimer;
+    
+    const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+                saveFormData(form, saveKey);
+            }, 2000); // Save after 2 seconds of inactivity
+        });
+    });
+    
+    // Load saved data on page load
+    loadFormData(form, saveKey);
+    
+    // Clear saved data on successful submission
+    form.addEventListener('submit', function() {
+        clearSavedData(saveKey);
+    });
+}
+
+function saveFormData(form, key) {
+    const formData = new FormData(form);
+    const data = {};
+    
+    for (let [name, value] of formData.entries()) {
+        if (name !== 'csrfmiddlewaretoken') {
+            data[name] = value;
+        }
+    }
+    
+    try {
+        localStorage.setItem(key, JSON.stringify({
+            data: data,
+            timestamp: Date.now()
+        }));
+    } catch (e) {
+        console.warn('Could not save form data:', e);
+    }
+}
+
+function loadFormData(form, key) {
+    try {
+        const saved = localStorage.getItem(key);
+        if (saved) {
+            const { data, timestamp } = JSON.parse(saved);
+            
+            // Only restore if saved within last 24 hours
+            if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
+                Object.keys(data).forEach(name => {
+                    const field = form.querySelector(`[name="${name}"]`);
+                    if (field && !field.value) {
+                        field.value = data[name];
+                    }
+                });
+                
+                // Show restoration notification
+                if (window.toastManager) {
+                    window.toastManager.info('Dados do rascunho restaurados.');
+                }
+            }
+        }
+    } catch (e) {
+        console.warn('Could not load saved form data:', e);
+    }
+}
+
+function clearSavedData(key) {
+    try {
+        localStorage.removeItem(key);
+    } catch (e) {
+        console.warn('Could not clear saved data:', e);
+    }
+}
+
+// Legacy global functions (maintained for backward compatibility)
+function filterCategoriesByType() {
+    // Handled by enhanced TransactionManager
+}
+
+function toggleRecurrenceType() {
+    // Enhanced version handled in main.js
+}
+
+function formatCurrency(input) {
+    // Enhanced version handled by CurrencyFormatter
+}
+
+function unformatCurrency(input) {
+    // Enhanced version handled by CurrencyFormatter
+}
+</script>
+{% endblock %}

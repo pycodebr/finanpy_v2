@@ -57,6 +57,60 @@
         font-size: 0.875rem;
         margin-top: 0.25rem;
     }
+    
+    /* Enhanced Button Styles */
+    .btn-primary-enhanced {
+        background: linear-gradient(135deg, #3B82F6 0%, #2563EB 50%, #1D4ED8 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
+    
+    .btn-primary-enhanced::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.6s ease;
+    }
+    
+    .btn-primary-enhanced:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 20px 25px rgba(59, 130, 246, 0.5);
+    }
+    
+    .btn-primary-enhanced:hover::before {
+        left: 100%;
+    }
+    
+    .btn-secondary-enhanced {
+        background: rgba(31, 41, 55, 0.8);
+        border: 2px solid #374151;
+        color: #D1D5DB;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(8px);
+    }
+    
+    .btn-secondary-enhanced:hover {
+        transform: translateY(-2px);
+        border-color: #4B5563;
+        background: rgba(55, 65, 81, 0.9);
+        color: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
 </style>
 {% endblock %}
 
@@ -220,7 +274,7 @@
                         
                         <!-- Form Actions -->
                         <div class="flex flex-col sm:flex-row gap-3 pt-6 border-t border-dark-700">
-                            <button type="submit" class="btn-primary flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                            <button type="submit" class="btn-primary-enhanced flex-1 flex items-center justify-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     {% if form.instance.pk %}
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -231,7 +285,7 @@
                                 {{ submit_text }}
                             </button>
                             
-                            <a href="{{ cancel_url }}" class="btn-secondary flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:scale-105">
+                            <a href="{{ cancel_url }}" class="btn-secondary-enhanced flex-1 flex items-center justify-center">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
